@@ -151,6 +151,7 @@ a{color:var(--violet);}
 .search-results a:hover, .search-results a.active-result{background:rgba(242,166,90,0.08);}
 .search-results .r-cat{color:var(--fog); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em;}
 .search-results .r-empty{padding:12px; color:var(--fog); font-size:12.5px;}
+.search-results .r-section-label{padding:8px 12px 4px; color:var(--fog); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; font-family:var(--mono);}
 
 /* ---------- Layout ---------- */
 .shell{

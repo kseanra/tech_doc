@@ -75,23 +75,17 @@
   if (input && results && window.SITE_INDEX){
     var activeIdx = -1;
     var currentMatches = [];
+    // Suggestions shown when the search box is focused but still empty, so a
+    // developer sees useful shortcuts immediately instead of a blank dropdown.
+    var POPULAR = window.SITE_INDEX.filter(function(item){ return item.popular; }).slice(0, 6);
 
-    function render(term){
-      if (!term){
-        results.classList.add('hidden');
-        results.innerHTML = '';
-        activeIdx = -1;
-        return;
-      }
-      var t = term.toLowerCase();
-      currentMatches = window.SITE_INDEX.filter(function(item){
-        return (item.title + ' ' + item.keywords + ' ' + item.category).toLowerCase().indexOf(t) !== -1;
-      }).slice(0, 8);
-
-      if (!currentMatches.length){
-        results.innerHTML = '<div class="r-empty">no matches for "' + term + '"</div>';
+    function renderMatches(matches, label, emptyMessage){
+      currentMatches = matches;
+      if (!matches.length){
+        results.innerHTML = '<div class="r-empty">' + emptyMessage + '</div>';
       } else {
-        results.innerHTML = currentMatches.map(function(item, i){
+        var head = label ? '<div class="r-section-label">' + label + '</div>' : '';
+        results.innerHTML = head + matches.map(function(item, i){
           return '<a href="' + item.url + '" data-idx="' + i + '"><span class="r-cat">' + item.category + '</span><span>' + item.title + '</span></a>';
         }).join('');
       }
@@ -99,8 +93,26 @@
       results.classList.remove('hidden');
     }
 
+    function render(term){
+      if (!term){
+        if (!POPULAR.length){
+          results.classList.add('hidden');
+          results.innerHTML = '';
+          activeIdx = -1;
+          return;
+        }
+        renderMatches(POPULAR, 'Popular', 'no matches');
+        return;
+      }
+      var t = term.toLowerCase();
+      var matches = window.SITE_INDEX.filter(function(item){
+        return (item.title + ' ' + item.keywords + ' ' + item.category).toLowerCase().indexOf(t) !== -1;
+      }).slice(0, 8);
+      renderMatches(matches, null, 'no matches for "' + term + '"');
+    }
+
     input.addEventListener('input', function(){ render(input.value.trim()); });
-    input.addEventListener('focus', function(){ if (input.value.trim()) render(input.value.trim()); });
+    input.addEventListener('focus', function(){ render(input.value.trim()); });
 
     input.addEventListener('keydown', function(e){
       var links = results.querySelectorAll('a');
