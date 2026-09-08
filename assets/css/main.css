@@ -587,6 +587,15 @@ footer.site-footer .foot-links a:hover{color:var(--amber);}
 .grid-card.disabled{opacity:0.55; cursor:default;}
 .grid-card.disabled:hover{border-color:var(--hairline); transform:none;}
 
+.result-count{
+  display:block;
+  font-family:var(--mono);
+  color:var(--fog);
+  font-size:11.5px;
+  margin:0 0 14px;
+  min-height:14px;
+}
+
 .section-block{margin-bottom:40px;}
 .section-block-head{
   display:flex;

@@ -23,7 +23,14 @@
     <h1 class="section-head">Developer tools</h1>
     <p class="section-sub">Every tool runs entirely in your browser — no upload, no server round-trip, no tracking of what you paste in.</p>
 
-    <div class="grid">
+    <div class="grepbar" style="max-width:420px; margin:0 0 8px;">
+      <span class="prompt">grep -i</span>
+      <input type="text" id="toolsFilter" placeholder="filter tools… (json, encode, jwt)" autocomplete="off">
+      <span class="cursor"></span>
+    </div>
+    <span class="result-count" id="toolsResultCount"></span>
+
+    <div class="grid" id="toolsGrid">
       <a class="grid-card" href="/tools/json-formatter/">
         <span class="g-badge live">live</span>
         <div class="g-title">JSON Formatter</div>
@@ -95,6 +102,10 @@
         <div class="g-desc">Quick "current timestamp" lookup — see the full converter for both directions.</div>
       </a>
     </div>
+
+    <div class="empty-state hidden" id="toolsEmptyState">
+      <span class="prompt">$</span> grep: no tools matched your query
+    </div>
   </main>
 
   <aside class="ad-rail">
@@ -112,5 +123,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools-filter.js"></script>
 </body>
 </html>
