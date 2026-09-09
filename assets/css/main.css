@@ -625,6 +625,92 @@ footer.site-footer .foot-links a:hover{color:var(--amber);}
   border-radius:3px;
 }
 
+.sr-only{
+  position:absolute;
+  width:1px; height:1px;
+  padding:0; margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ---------- Regex tester ---------- */
+.regex-pattern-bar{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  padding:12px 14px;
+}
+.regex-delim{
+  font-family:var(--mono);
+  color:var(--fog);
+  font-size:15px;
+  user-select:none;
+}
+.regex-pattern-input{
+  flex:1;
+  min-width:180px;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--amber);
+  font-family:var(--mono);
+  font-size:14px;
+}
+.regex-pattern-input::placeholder{color:var(--fog);}
+.regex-flags{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding-left:8px;
+  border-left:1px solid var(--hairline);
+}
+.regex-flag{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--fog);
+  cursor:pointer;
+}
+.regex-flag input{accent-color:var(--amber);}
+.regex-flag:hover{color:var(--paper);}
+
+.muted-inline{color:var(--fog); font-weight:400; text-transform:none; letter-spacing:0;}
+
+.match-list{padding:6px 0; max-height:420px; overflow-y:auto;}
+.match-item{
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:8px 12px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--hairline);
+  font-size:13px;
+}
+.match-item:last-child{border-bottom:none;}
+.match-idx{font-family:var(--mono); color:var(--fog); font-size:11.5px; flex-shrink:0;}
+.match-text{
+  font-family:var(--mono);
+  color:var(--paper);
+  background:rgba(242,166,90,0.1);
+  padding:2px 6px;
+  border-radius:3px;
+  word-break:break-all;
+}
+.match-pos{font-family:var(--mono); color:var(--fog); font-size:11.5px;}
+.match-groups{
+  flex-basis:100%;
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--fog);
+}
+.match-groups code{color:var(--violet); background:none; padding:0;}
+.match-empty{padding:14px; color:var(--fog); font-family:var(--mono); font-size:13px;}
+
 @media (max-width: 1100px){
   .shell, .shell.no-sidebar{grid-template-columns:220px 1fr;}
   .shell.no-sidebar{grid-template-columns:1fr;}

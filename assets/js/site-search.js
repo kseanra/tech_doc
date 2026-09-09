@@ -7,7 +7,7 @@ window.SITE_INDEX = [
   {title:'JWT Decoder',           url:'/tools/jwt-decoder/',        category:'tool', popular:true, keywords:'jwt decode json web token header payload claims'},
   {title:'UUID Generator',        url:'/tools/uuid-generator/',     category:'tool', popular:true, keywords:'uuid guid generator v4 unique id'},
   {title:'Timestamp Converter',   url:'/tools/timestamp-converter/', category:'tool', popular:true, keywords:'unix timestamp epoch converter date time'},
-  {title:'Regex Tester',          url:'/tools/regex-tester/',       category:'tool', popular:true, keywords:'regex regular expression tester match'},
+  {title:'Regex Tester',          url:'/tools/regex-tester/',       category:'tool', popular:true, keywords:'regex regular expression tester match test string pattern capture group'},
   {title:'Regex Escape',          url:'/tools/regex-escape/',       category:'tool', keywords:'regex escape special characters'},
   {title:'HTML Encoder',          url:'/tools/html-encoder/',       category:'tool', keywords:'html entity encode decode escape'},
   {title:'SQL Formatter',         url:'/tools/sql-formatter/',      category:'tool', keywords:'sql format pretty print query'},

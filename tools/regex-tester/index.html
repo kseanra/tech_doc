@@ -5,8 +5,8 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regex Tester (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Test a regular expression against sample text with live match highlighting. Coming soon to DevFixTools — a free, client-side developer tools site.">
+<title>Regex Tester — Live Match Highlighting Online | DevFixTools</title>
+<meta name="description" content="Test a regular expression against sample text with live match highlighting, capture groups and flag toggles (g, i, m, s, u). Runs entirely in your browser — nothing is uploaded.">
 <link rel="canonical" href="https://devfixtools.com/tools/regex-tester/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +20,78 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / regex tester</div>
-    <h1 class="section-head">Regex Tester</h1>
-    <p class="section-sub">Test a regular expression against sample text with live match highlighting.</p>
+    <div class="tool-head">
+      <h1 class="section-head">Regex Tester</h1>
+      <p class="section-sub">Test a regular expression against sample text with live match highlighting, capture groups, and flag toggles. Everything runs locally in your browser.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today.
+    <div class="tool-panel">
+      <div class="panel-label">Pattern</div>
+      <div class="regex-pattern-bar">
+        <span class="regex-delim" aria-hidden="true">/</span>
+        <label for="regexPattern" class="sr-only">Regular expression pattern</label>
+        <input type="text" id="regexPattern" class="regex-pattern-input" spellcheck="false" autocomplete="off"
+               placeholder="\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b"
+               value="\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b">
+        <span class="regex-delim" aria-hidden="true">/</span>
+        <div class="regex-flags" role="group" aria-label="Regex flags">
+          <label class="regex-flag"><input type="checkbox" id="flagG" checked> g</label>
+          <label class="regex-flag"><input type="checkbox" id="flagI" checked> i</label>
+          <label class="regex-flag"><input type="checkbox" id="flagM"> m</label>
+          <label class="regex-flag"><input type="checkbox" id="flagS"> s</label>
+          <label class="regex-flag"><input type="checkbox" id="flagU"> u</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-error" id="regexError" role="alert"></div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Test string</div>
+      <label for="regexTestString" class="sr-only">Test string</label>
+      <textarea id="regexTestString" spellcheck="false" placeholder="Paste sample text to match against…">Contact us at Support@Example.com or the backup address sales.team@example.org — both should highlight below.</textarea>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn" id="btnCopyMatches">Copy matches (JSON)</button>
+      <button class="btn" id="btnClear">Clear</button>
+    </div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Highlighted<span class="muted-inline" id="regexMatchCount"></span></div>
+      <pre class="tool-output" id="regexHighlighted" aria-live="polite"></pre>
+    </div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Matches<span class="muted-inline" id="regexMatchListCount"></span></div>
+      <div class="match-list" id="regexMatchList" aria-live="polite"></div>
+    </div>
+
+    <div class="prose">
+      <h2>How this regex tester works</h2>
+      <p>Type a pattern into the <b>Pattern</b> field and toggle the flags you need, then edit the text in <b>Test string</b>. Matches update live: each one is wrapped in a highlight below and listed with its index, full match text, and any capture groups. Matching runs inside a background Web Worker in your own browser — nothing is uploaded, and a runaway pattern can't freeze the page (see the note on backtracking below).</p>
+
+      <h3>Worked example</h3>
+      <p>The page loads with <code>\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b</code> (flags <code>g</code> <code>i</code>) already testing against a sample sentence containing two email addresses — both highlight immediately so you can see the tool working before you type anything.</p>
+
+      <h3>Flags</h3>
+      <ul>
+        <li><code>g</code> — global: find every match instead of stopping at the first.</li>
+        <li><code>i</code> — case-insensitive matching.</li>
+        <li><code>m</code> — multiline: <code>^</code> and <code>$</code> match the start/end of each line, not just the whole string.</li>
+        <li><code>s</code> — dot-all: <code>.</code> also matches newline characters.</li>
+        <li><code>u</code> — unicode mode: treats the pattern and string as a sequence of Unicode code points.</li>
+      </ul>
+
+      <h3>Handy patterns to try</h3>
+      <ul>
+        <li>Email: <code>\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b</code></li>
+        <li>URL: <code>https?:\/\/[^\s]+</code></li>
+        <li>IPv4 address: <code>\b(?:\d{1,3}\.){3}\d{1,3}\b</code></li>
+        <li>Hex color: <code>#[0-9a-f]{3,8}\b</code></li>
+      </ul>
+
+      <p>An invalid pattern shows the JavaScript engine's own error message rather than a generic failure. If a pattern is still evaluating after about 1.5 seconds against your text — a classic sign of catastrophic backtracking, e.g. <code>(a+)+$</code> against a long run of "a" characters — it's cancelled automatically and flagged, instead of locking up the tab.</p>
     </div>
   </main>
 
@@ -43,5 +110,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/regex-tester.js"></script>
 </body>
 </html>
