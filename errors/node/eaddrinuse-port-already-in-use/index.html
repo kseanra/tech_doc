@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js error: EADDRINUSE — fix it | DevFixTools</title>
+<meta name="description" content="Fix Node's 'Error: listen EADDRINUSE: address already in use' error. Find and kill whatever's holding the port, or just pick a different one.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/node/eaddrinuse-port-already-in-use/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / node / eaddrinuse port already in use</div>
+    <h1 class="section-head">Node.js: EADDRINUSE</h1>
+    <p class="section-sub">What "address already in use" means, and the fastest way to free up the port instead of guessing.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>You start your dev server and Node refuses to boot:</p>
+      <pre>node:events:495
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3000
+    at Server.setupListenHandle [as _listen2] (node:net:1740:16)
+    at listenInCluster (node:net:1788:12)
+    at Server.listen (node:net:1876:7)</pre>
+
+      <h2>Why it happens</h2>
+      <p>Something is already bound to that port — the operating system only lets one process listen on a given port at a time. Almost always it's one of these:</p>
+      <ul>
+        <li>A previous run of the same dev server is still alive — killed with an interrupt that didn't fully propagate, crashed and left an orphaned child process, or the terminal it was running in was just closed.</li>
+        <li>A tool like <code>nodemon</code> or <code>ts-node-dev</code> restarted your app but the old worker process didn't exit before the new one tried to bind the port.</li>
+        <li>A genuinely different service — another app, a Docker container publishing the same host port — is using it, unrelated to anything you're debugging.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>Find whatever's actually holding the port:</p>
+      <pre><span class="cm"># macOS / Linux</span>
+lsof -i :3000
+
+<span class="cm"># Windows (PowerShell or cmd)</span>
+netstat -ano | findstr :3000</pre>
+      <p>Then stop it. On macOS/Linux, kill the PID <code>lsof</code> printed:</p>
+      <pre>kill -9 &lt;pid&gt;</pre>
+      <p>On Windows, using the PID from the last column of <code>netstat</code>:</p>
+      <pre>taskkill /PID &lt;pid&gt; /F</pre>
+      <p>If it keeps coming back immediately, a process manager (nodemon, a shell script, Docker's restart policy) is probably respawning it — stop that supervisor first, not just the process it spawned.</p>
+      <p>If you don't actually care which port you use right now, it's often faster to just run on a different one instead of hunting down the old process:</p>
+      <pre>PORT=3001 node server.js</pre>
+
+      <h2>When killing the parent isn't enough</h2>
+      <p>A process started via <code>child_process.spawn</code> or a shell pipeline sometimes survives its parent being killed — you'll <code>kill</code> the PID you see in your terminal and the port is still held a second later. If that happens, match by command name instead of PID:</p>
+      <pre>pkill -f "node.*server.js"</pre>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

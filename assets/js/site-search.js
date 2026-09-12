@@ -26,5 +26,8 @@ window.SITE_INDEX = [
   {title:'Git: fatal not a git repository',        url:'/errors/git/fatal-not-a-git-repository/', category:'error', keywords:'git error fatal not a git repository or any parent'},
   {title:'MySQL: Access denied for user',          url:'/errors/mysql/access-denied-for-user/', category:'error', keywords:'mysql error 1045 access denied for user using password localhost'},
   {title:'.NET: Could not load file or assembly',  url:'/errors/dotnet/could-not-load-file-or-assembly/', category:'error', keywords:'dotnet net filenotfoundexception could not load file or assembly dependencies fusion log'},
-  {title:'Redis: connection refused',              url:'/errors/redis/connection-refused/', category:'error', keywords:'redis error econnrefused connection refused docker'}
+  {title:'Redis: connection refused',              url:'/errors/redis/connection-refused/', category:'error', keywords:'redis error econnrefused connection refused docker'},
+  {title:'Node.js: EADDRINUSE',                    url:'/errors/node/eaddrinuse-port-already-in-use/', category:'error', keywords:'node error eaddrinuse address already in use port listen'},
+  {title:'Python: ModuleNotFoundError',             url:'/errors/python/modulenotfounderror/', category:'error', keywords:'python error modulenotfounderror no module named pip venv'},
+  {title:'Nginx: 502 Bad Gateway',                  url:'/errors/nginx/502-bad-gateway/', category:'error', keywords:'nginx error 502 bad gateway upstream proxy_pass'}
 ];

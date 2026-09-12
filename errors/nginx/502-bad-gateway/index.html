@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nginx error: 502 Bad Gateway — fix it | DevFixTools</title>
+<meta name="description" content="Fix nginx's 502 Bad Gateway error. It means nginx got an invalid response from your app, not that nginx itself is broken — here's how to find out why.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/nginx/502-bad-gateway/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / nginx / 502 bad gateway</div>
+    <h1 class="section-head">Nginx: 502 Bad Gateway</h1>
+    <p class="section-sub">What nginx is actually telling you, and where to look instead of restarting things at random.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>A visitor (or you) gets nginx's own error page:</p>
+      <pre>502 Bad Gateway
+nginx</pre>
+
+      <h2>Why it happens</h2>
+      <p>Nginx is usually sitting in front of your app as a reverse proxy, not serving the app itself. A 502 means nginx successfully received the request and tried to forward it to the upstream app — but got back an invalid response, or no response at all, from that upstream. Common causes:</p>
+      <ul>
+        <li>The upstream app isn't running, crashed, or is mid-restart (very common right after a deploy).</li>
+        <li>Nginx's <code>proxy_pass</code> points at the wrong port or the wrong Unix socket path for what's actually running.</li>
+        <li>A Unix socket file exists, but its permissions don't allow nginx's worker process (often running as <code>www-data</code> or <code>nginx</code>) to connect to it.</li>
+        <li>The upstream took too long to respond and the connection was closed, or it closed the connection itself mid-response.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>Read nginx's error log before touching anything — it names the exact upstream and the exact reason, instead of leaving you to guess:</p>
+      <pre>tail -f /var/log/nginx/error.log</pre>
+      <p>Typical lines look like <code>connect() failed (111: Connection refused)</code> (nothing listening where nginx expected) or <code>connect() to unix:/run/app.sock failed (13: Permission denied)</code> (a socket permissions problem specifically).</p>
+      <p>Confirm the app itself is actually up:</p>
+      <pre>systemctl status myapp</pre>
+      <p>If it's a socket permissions issue, check the socket file's owner and mode, and that nginx's user is in the right group to reach it. If it's a timeout under load rather than a hard failure, you can raise the ceiling in the relevant <code>server</code> or <code>location</code> block:</p>
+      <pre>proxy_connect_timeout 10s;
+proxy_read_timeout    30s;</pre>
+      <p>Treat a timeout increase as a stopgap, not a fix — if the upstream is genuinely too slow under normal load, the real problem is on the app side.</p>
+
+      <h2>502 vs 504 — they're not the same problem</h2>
+      <p>504 Gateway Timeout means nginx never got a response from the upstream at all within the allowed time — the connection was made, but nothing came back in time. 502 means either the connection itself failed (refused, reset) or the upstream sent back something nginx couldn't parse as a valid HTTP response. Raising <code>proxy_read_timeout</code> can fix a 504; it does nothing for a 502 caused by the upstream being down or misconfigured, so check the error log first rather than assuming it's a timing issue.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

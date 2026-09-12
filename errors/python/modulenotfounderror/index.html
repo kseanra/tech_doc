@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python error: ModuleNotFoundError — fix it | DevFixTools</title>
+<meta name="description" content="Fix Python's 'ModuleNotFoundError: No module named ...' error. Usually it means pip installed into a different Python than the one running your script.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/python/modulenotfounderror/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / python / modulenotfounderror</div>
+    <h1 class="section-head">Python: ModuleNotFoundError</h1>
+    <p class="section-sub">Why "No module named 'x'" happens even right after you installed it, and how to actually fix it.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <pre>Traceback (most recent call last):
+  File "app.py", line 1, in &lt;module&gt;
+    import requests
+ModuleNotFoundError: No module named 'requests'</pre>
+
+      <h2>Why it happens</h2>
+      <p>This is almost never "the package doesn't exist" — it's that the Python interpreter actually running your script can't see it. The most common causes, in order of likelihood:</p>
+      <ul>
+        <li>You installed the package with one Python/pip, and you're running the script with a different one — very common with multiple Pythons installed (system Python, Homebrew Python, a version manager) or when a virtual environment exists but isn't active.</li>
+        <li>You're inside a virtual environment but installed the package before activating it, or in a different terminal tab that never activated it.</li>
+        <li>The import name doesn't match the package name — installing <code>beautifulsoup4</code> but importing <code>bs4</code> is correct and expected, but a typo in either direction produces this exact error.</li>
+        <li>For your own local module (not a third-party package): you're running the script from a different working directory than the one the import assumes, or a package directory is missing its <code>__init__.py</code>.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>First, confirm which Python is actually about to run your code:</p>
+      <pre>which python
+python -c "import sys; print(sys.executable)"</pre>
+      <p>Install into that <i>exact</i> interpreter — using <code>python -m pip</code> instead of a bare <code>pip</code> avoids the classic mismatch where <code>pip</code> on your <code>PATH</code> points at a different Python than <code>python</code> does:</p>
+      <pre>python -m pip install requests</pre>
+      <p>If you're meant to be in a virtual environment, check for the <code>(venv)</code> prefix in your prompt before installing or running anything — if it's missing, activate it first:</p>
+      <pre><span class="cm"># macOS / Linux</span>
+source venv/bin/activate
+
+<span class="cm"># Windows</span>
+venv\Scripts\activate</pre>
+      <p>For a local module that isn't a third-party package, confirm you're running from the directory the import expects, and that any package directory in the path has an <code>__init__.py</code> file if your Python version and import style require one.</p>
+
+      <h2>Confirm what's actually installed where</h2>
+      <p>Before reinstalling anything, check whether the package is already present and exactly where:</p>
+      <pre>pip show requests</pre>
+      <p>If <code>pip show</code> succeeds but the import still fails, that confirms the mismatch is about <i>which</i> Python is running your script, not whether the package is installed at all — which points straight back to the "which Python" check above instead of a wasted reinstall.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

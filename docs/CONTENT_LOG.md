@@ -5,6 +5,73 @@ Tool or Guide" task. Newest entries first. Never re-implement anything listed
 as `SHIPPED`; when starting a run, prefer the highest-priority `PLANNED` item
 over searching for a brand-new idea.
 
+## 2026-09-12 — Node.js, Python, Nginx error pages
+**Status:** SHIPPED
+
+Continued growing the errors section (top priority per the AdSense readiness
+audit — "real error strings people search for verbatim," prioritised over
+new tools) with three more full pages at Git/Docker depth, in three brand
+new categories:
+
+- `/errors/node/eaddrinuse-port-already-in-use/` — EADDRINUSE, covering
+  orphaned dev-server processes, finding/killing whatever holds the port on
+  both Unix and Windows, and the case where a spawned child survives its
+  parent being killed.
+- `/errors/python/modulenotfounderror/` — ModuleNotFoundError, covering the
+  "wrong Python/pip pair" cause (the actual root cause most of the time),
+  venv activation, and import-name-vs-package-name mismatches.
+- `/errors/nginx/502-bad-gateway/` — 502 Bad Gateway, covering reading the
+  nginx error log first, common upstream/socket-permission causes, and the
+  502-vs-504 distinction (a `proxy_read_timeout` bump fixes one, not the
+  other).
+
+Added three new category cards to `errors/index.html` (Node.js, Python,
+Nginx), `sitemap.xml` entries, and `SITE_INDEX` entries in `site-search.js`.
+Errors section is now 8 pages, up from 2 at the start of this remediation
+— still short of the 20–30 target, more categories to follow.
+
+Files touched: new `errors/node/eaddrinuse-port-already-in-use/index.html`,
+`errors/python/modulenotfounderror/index.html`,
+`errors/nginx/502-bad-gateway/index.html`; edited `errors/index.html`,
+`sitemap.xml`, `assets/js/site-search.js`.
+
+## 2026-09-12 — Deepened Markdown, Docker, and CSS guides; fixed CLI truncation bug
+**Status:** SHIPPED
+
+Markdown and Docker guide categories had exactly one card each — an
+effectively empty page to a crawler. Expanded both to 4 cards:
+
+- Markdown: kept the syntax table, added `gfm-extras.md` (task lists,
+  strikethrough, footnotes — and where they don't render), `common-mistakes.md`
+  (the three reasons Markdown "doesn't render right": missing blank lines,
+  under-indented nesting, single-newline line breaks), and
+  `links-and-references.md` (reference-style links).
+- Docker: kept `docker-basics.sh`, added `docker-volumes.sh` (bind mounts vs
+  named volumes, why data disappears without one), `docker-compose-basics.yml`
+  (service-name networking — the same mechanism that fixes the Redis
+  ECONNREFUSED error page), and `docker-cleanup.sh` (prune/disk space, and
+  what `-a --volumes` actually removes).
+
+CSS went from 3 to 5 cards (added `clamp-responsive.css` and
+`container-queries.css`) and all three original card descriptions were
+expanded from one sentence to real "when/why" explanations. JavaScript and
+Python descriptions were similarly deepened (no new cards).
+
+Also fixed a real bug in `guides/cli/index.html`: two card descriptions were
+cut off mid-sentence with a literal `[...]` and an unclosed `<code>` tag —
+rewrote both to complete sentences.
+
+Updated the `<span class="count">` sidebar figures across all 7 guide pages,
+the category cards on `guides/index.html`, and the homepage guides preview to
+match the new per-category card counts (css 5, markdown 4, docker 4;
+javascript/python/api/cli unchanged in count). Homepage's "Fix an error"
+preview also gained the new MySQL error page as a third example.
+
+Files touched: `guides/css/index.html`, `guides/markdown/index.html`,
+`guides/docker/index.html`, `guides/javascript/index.html`,
+`guides/python/index.html`, `guides/cli/index.html`, `guides/api/index.html`
+(sidebar counts only), `guides/index.html`, `index.html`.
+
 ## 2026-09-12 — MySQL, .NET, Redis error pages
 **Status:** SHIPPED
 
