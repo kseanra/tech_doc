@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>.NET error: Could not load file or assembly — fix it | DevFixTools</title>
+<meta name="description" content="Fix .NET's 'Could not load file or assembly ... or one of its dependencies' error. Learn why it happens and how to actually find the missing dependency.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/dotnet/could-not-load-file-or-assembly/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / dotnet / could not load file or assembly</div>
+    <h1 class="section-head">.NET: Could not load file or assembly</h1>
+    <p class="section-sub">What this error means, why "it works on my machine" is exactly the problem, and how to find the real cause instead of guessing.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Your app throws this at startup or the first time a code path touches a particular library:</p>
+      <pre>System.IO.FileNotFoundException: Could not load file or assembly 'Newtonsoft.Json,
+Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed' or one of its
+dependencies. The system cannot find the file specified.</pre>
+
+      <h2>Why it happens</h2>
+      <p>The .NET loader looked for an assembly with that exact name, version, and (for strong-named assemblies) public key token, and couldn't find a matching file anywhere it searched. That's a more specific failure than "the DLL is missing" — the DLL can be sitting right there in the output folder and this error still fires if its version doesn't match what the caller was compiled against. Typical causes:</p>
+      <ul>
+        <li>A NuGet package restore didn't run (or ran against a different lock file), so the referenced version on disk doesn't match what the project was built against.</li>
+        <li>A transitive dependency isn't copied to the output directory — common when a project reference has <code>CopyLocal</code>/<code>Private</code> set to false, or a dependency is only resolved at the top-level app but a class library assumes it's already there.</li>
+        <li>Classic .NET Framework binding: two different parts of the app reference different versions of the same assembly, and there's no binding redirect telling the runtime which one to actually load.</li>
+        <li>An architecture or runtime mismatch — a native/mixed-mode assembly built for x64 loaded into an x86 process, or an assembly targeting a newer .NET runtime than what's installed on the machine running it.</li>
+        <li>The deployment machine is simply missing the corresponding shared runtime (a very common "works in CI, fails on the server" cause).</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>Start clean — stale <code>obj</code>/<code>bin</code> folders holding an old, mismatched copy of an assembly is a frequent, boring cause:</p>
+      <pre>dotnet clean
+dotnet restore
+dotnet build</pre>
+      <p>Confirm the assembly actually exists next to your executable after building, and check its file version:</p>
+      <pre>ls bin/Debug/net8.0/*.dll   # or the equivalent output folder for your TFM</pre>
+      <p>On a deployment target, check which runtimes are actually installed — an app targeting <code>net8.0</code> will fail to load its dependencies if only the .NET 6 runtime is present:</p>
+      <pre>dotnet --list-runtimes</pre>
+      <p>For classic .NET Framework projects hitting a version conflict between two references, add an explicit binding redirect to <code>app.config</code> / <code>web.config</code> so the runtime knows which version to prefer:</p>
+      <pre>&lt;dependentAssembly&gt;
+  &lt;assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" /&gt;
+  &lt;bindingRedirect oldVersion="0.0.0.0-13.0.0.0" newVersion="13.0.0.0" /&gt;
+&lt;/dependentAssembly&gt;</pre>
+
+      <h2>Stop guessing: read the actual bind log</h2>
+      <p>If the cause still isn't obvious, stop guessing and turn on assembly binding logging with the Fusion Log Viewer (<code>fuslogvw.exe</code>, ships with Visual Studio / the Windows SDK) or the <code>COMPLUS_ETWEnabled</code>/<code>MDA</code> equivalents on newer runtimes. It logs exactly which paths the loader probed for the failing assembly and why each one was rejected — which turns "could not load file or assembly" from a guessing game into a five-second read.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

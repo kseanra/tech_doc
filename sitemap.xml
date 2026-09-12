@@ -27,6 +27,9 @@
   <url><loc>https://www.skservices.co.nz/errors/</loc></url>
   <url><loc>https://www.skservices.co.nz/errors/docker/container-name-in-use/</loc></url>
   <url><loc>https://www.skservices.co.nz/errors/git/fatal-not-a-git-repository/</loc></url>
+  <url><loc>https://www.skservices.co.nz/errors/mysql/access-denied-for-user/</loc></url>
+  <url><loc>https://www.skservices.co.nz/errors/dotnet/could-not-load-file-or-assembly/</loc></url>
+  <url><loc>https://www.skservices.co.nz/errors/redis/connection-refused/</loc></url>
   <url><loc>https://www.skservices.co.nz/blog/</loc></url>
   <url><loc>https://www.skservices.co.nz/about/</loc></url>
   <url><loc>https://www.skservices.co.nz/contact/</loc></url>

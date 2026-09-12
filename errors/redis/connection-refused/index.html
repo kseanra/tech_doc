@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redis error: connect ECONNREFUSED — fix it | DevFixTools</title>
+<meta name="description" content="Fix Redis's 'Error: connect ECONNREFUSED 127.0.0.1:6379' error, including the Docker networking trap that causes it even when Redis is running fine.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/redis/connection-refused/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / redis / connection refused</div>
+    <h1 class="section-head">Redis: connection refused</h1>
+    <p class="section-sub">What "Error: connect ECONNREFUSED 127.0.0.1:6379" means, and why it often has nothing to do with Redis actually being down.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Your app (or <code>redis-cli</code>) tries to connect and gets refused outright, not a timeout:</p>
+      <pre>Error: connect ECONNREFUSED 127.0.0.1:6379</pre>
+      <p>Or from the CLI directly:</p>
+      <pre>Could not connect to Redis at 127.0.0.1:6379: Connection refused</pre>
+      <p>A "refused" connection means something answered at that address and actively said no — which is a different, more specific situation than a hang, and it usually points at one of a handful of causes.</p>
+
+      <h2>Why it happens</h2>
+      <ul>
+        <li>Redis isn't running at all — the most common cause, and the first thing to rule out.</li>
+        <li>Redis is running, but listening on a different port or a different bind address than your app is configured to use.</li>
+        <li><code>redis.conf</code> has <code>bind 127.0.0.1</code> (the default), so nothing outside the same machine can reach it — fine for a local dev box, a frequent surprise on a server or VM.</li>
+        <li>You're running Redis inside Docker and your app <i>isn't</i> — <code>127.0.0.1</code> inside a container refers to the container itself, not your host machine, so an app on the host trying to reach a containerized Redis via <code>127.0.0.1</code> will always be refused regardless of port-mapping mistakes.</li>
+        <li>The reverse: your app is also in Docker, in a different container or network, and is trying <code>127.0.0.1</code> instead of the Redis container's service name.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>First, confirm Redis is actually up and reachable at all:</p>
+      <pre>redis-cli ping
+# expect: PONG</pre>
+      <p>If that fails, check whether the process is running, then start it:</p>
+      <pre># systemd hosts
+systemctl status redis
+systemctl start redis
+
+# plain background process
+redis-server --daemonize yes</pre>
+      <p>If Redis responds to <code>redis-cli ping</code> locally but your app still can't connect, the two aren't talking to the same host/port — double-check your app's actual connection string or environment variable, not just what you assume it is.</p>
+      <p>If Redis runs in Docker and your app runs on the host (or in a different container), <code>127.0.0.1</code> is very likely the whole problem. On the same Docker Compose network, use the service name instead of an IP:</p>
+      <pre>redis:
+  image: redis:7
+  ports:
+    - "6379:6379"
+
+app:
+  environment:
+    - REDIS_HOST=redis   # not 127.0.0.1 or localhost</pre>
+      <p>From a non-Docker host process reaching into Docker Desktop on macOS/Windows, use <code>host.docker.internal</code> the other direction if your app is the one in the container and Redis is on the host.</p>
+      <p>If you need to allow connections from another real machine (not just container-to-container), edit <code>redis.conf</code>:</p>
+      <pre>bind 0.0.0.0
+protected-mode no   # only if you also set a requirepass — never expose Redis with neither</pre>
+
+      <h2>Isolate app bugs from server-down issues</h2>
+      <p>Before changing any application code, run <code>redis-cli -h &lt;host&gt; -p &lt;port&gt; ping</code> using the exact host and port your app is configured with. If that succeeds, the problem is in your app's configuration, not Redis itself — if it also fails, you've confirmed the server/network side is the real issue and can stop debugging application code entirely.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

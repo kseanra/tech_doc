@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL error: Access denied for user — fix it | DevFixTools</title>
+<meta name="description" content="Fix MySQL's 'Access denied for user ... (using password: YES)' error. Learn why it happens — including the localhost vs 127.0.0.1 trap — and how to fix it.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/mysql/access-denied-for-user/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / mysql / access denied for user</div>
+    <h1 class="section-head">MySQL: Access denied for user</h1>
+    <p class="section-sub">What "Access denied for user '...'@'...' (using password: YES)" actually means, and how to fix it instead of guessing at passwords.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>You tried to connect — from the <code>mysql</code> CLI, a GUI client, or your application — and got:</p>
+      <pre>ERROR 1045 (28000): Access denied for user 'app'@'localhost' (using password: YES)</pre>
+      <p>Sometimes it's <code>(using password: NO)</code> instead — that variant means MySQL never even received a password, which is a different problem than a wrong one.</p>
+
+      <h2>Why it happens</h2>
+      <p>This error almost never means "you have a typo in your password" as often as people assume. MySQL user accounts are actually identified by a <b><code>user</code>@<code>host</code></b> pair, not just a username — <code>'app'@'localhost'</code> and <code>'app'@'%'</code> are two completely separate accounts as far as MySQL is concerned, and can have different passwords or not exist at all. Common causes, roughly in order of likelihood:</p>
+      <ul>
+        <li>The account exists for a different host pattern than the one you're connecting from (e.g. it was created as <code>'app'@'%'</code> but you're connecting from <code>localhost</code>, or vice versa).</li>
+        <li>The password really is wrong, or was reset and the app's config wasn't updated.</li>
+        <li>An authentication plugin mismatch — MySQL 8 defaults new users to <code>caching_sha2_password</code>, which many older client libraries (older PHP, some Node/Python drivers) can't speak.</li>
+        <li><code>(using password: NO)</code> specifically: your client or connection string isn't sending a password at all, even though one is required.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>First, find out which <code>user</code>@<code>host</code> rows actually exist (run this as an account that already has access, e.g. root):</p>
+      <pre>SELECT user, host FROM mysql.user WHERE user = 'app';</pre>
+      <p>If the host column doesn't match where you're connecting from, either connect using a host pattern that does exist, or widen the account:</p>
+      <pre>CREATE USER 'app'@'%' IDENTIFIED BY 'the-real-password';
+GRANT ALL PRIVILEGES ON mydb.* TO 'app'@'%';
+FLUSH PRIVILEGES;</pre>
+      <p>If the account exists but you just need to reset the password:</p>
+      <pre>ALTER USER 'app'@'localhost' IDENTIFIED BY 'a-new-password';</pre>
+      <p>If the error only happens from certain client libraries and you suspect an auth plugin mismatch, switch that user back to the older, more broadly compatible plugin:</p>
+      <pre>ALTER USER 'app'@'localhost' IDENTIFIED WITH mysql_native_password BY 'the-password';</pre>
+
+      <h2>The localhost vs 127.0.0.1 trap</h2>
+      <p>On most installs, connecting to <code>localhost</code> makes the MySQL client use a local Unix socket file, not TCP — and that socket connection is authenticated against the <code>'user'@'localhost'</code> row specifically. Connecting to <code>127.0.0.1</code> instead forces a real TCP connection, which is checked against <code>'user'@'127.0.0.1'</code> or <code>'user'@'%'</code>. If you've only ever granted one of the two, switching between <code>localhost</code> and <code>127.0.0.1</code> in your connection string can turn a working login into "access denied" with the exact same password — worth trying before you touch any permissions.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

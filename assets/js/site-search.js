@@ -23,5 +23,8 @@ window.SITE_INDEX = [
   {title:'Docker Guide',          url:'/guides/docker/', category:'guide', keywords:'docker cli container image run build'},
 
   {title:'Docker: container name already in use', url:'/errors/docker/container-name-in-use/', category:'error', keywords:'docker error container name already in use conflict'},
-  {title:'Git: fatal not a git repository',        url:'/errors/git/fatal-not-a-git-repository/', category:'error', keywords:'git error fatal not a git repository or any parent'}
+  {title:'Git: fatal not a git repository',        url:'/errors/git/fatal-not-a-git-repository/', category:'error', keywords:'git error fatal not a git repository or any parent'},
+  {title:'MySQL: Access denied for user',          url:'/errors/mysql/access-denied-for-user/', category:'error', keywords:'mysql error 1045 access denied for user using password localhost'},
+  {title:'.NET: Could not load file or assembly',  url:'/errors/dotnet/could-not-load-file-or-assembly/', category:'error', keywords:'dotnet net filenotfoundexception could not load file or assembly dependencies fusion log'},
+  {title:'Redis: connection refused',              url:'/errors/redis/connection-refused/', category:'error', keywords:'redis error econnrefused connection refused docker'}
 ];
