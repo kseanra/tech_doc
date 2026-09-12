@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn active" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -56,7 +56,7 @@
 nums.<span class="fn">map</span>(n <span class="kw">=></span> n * 2);        <span class="cm">// [2,4,6,8,10]</span>
 nums.<span class="fn">filter</span>(n <span class="kw">=></span> n % 2 === 0); <span class="cm">// [2,4]</span>
 nums.<span class="fn">reduce</span>((a, b) <span class="kw">=></span> a + b);    <span class="cm">// 15</span></pre>
-        <p class="desc">Chain them: <code>nums.filter(n => n % 2).map(n => n * n)</code> reads left-to-right as "keep odds, then square."</p>
+        <p class="desc">Chain them: <code>nums.filter(n => n % 2).map(n => n * n)</code> reads left-to-right as "keep odds, then square." That chain replaces the equivalent loop with an accumulator variable, and reads as a description of the transformation rather than a set of steps you have to trace through by hand.</p>
       </article>
 
       <article class="card" data-cat="js" data-search="javascript optional chaining nullish coalescing question mark">
@@ -71,7 +71,7 @@ nums.<span class="fn">reduce</span>((a, b) <span class="kw">=></span> a + b);   
 
 <span class="cm">// nullish coalescing — fallback only for null/undefined</span>
 <span class="kw">const</span> name = user.name ?? <span class="str">'Anonymous'</span>;</pre>
-        <p class="desc">Unlike <code>||</code>, <code>??</code> won't replace <code>0</code>, <code>''</code>, or <code>false</code> — only <code>null</code>/<code>undefined</code>.</p>
+        <p class="desc">Unlike <code>||</code>, <code>??</code> won't replace <code>0</code>, <code>''</code>, or <code>false</code> — only <code>null</code>/<code>undefined</code>. That matters most on numeric fields: <code>count || 10</code> silently replaces a real <code>0</code> with <code>10</code>, which is almost never what you want; <code>count ?? 10</code> only falls back when <code>count</code> is actually missing.</p>
       </article>
 
       <article class="card" data-cat="js" data-search="javascript fetch async await api request">
@@ -90,7 +90,7 @@ nums.<span class="fn">reduce</span>((a, b) <span class="kw">=></span> a + b);   
     console.<span class="fn">error</span>(<span class="str">'Fetch failed:'</span>, err);
   }
 }</pre>
-        <p class="desc">Always check <code>res.ok</code> — <code>fetch</code> only rejects on network failure, not on 4xx/5xx responses.</p>
+        <p class="desc">Always check <code>res.ok</code> — <code>fetch</code> only rejects on network failure, not on 4xx/5xx responses. A 404 or 500 still resolves successfully as far as <code>fetch</code> is concerned, so code that only wraps the call in <code>try</code>/<code>catch</code> and never checks <code>res.ok</code> will treat a failed request as if it had succeeded.</p>
       </article>
 
     </div>

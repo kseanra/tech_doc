@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn active" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn active" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -98,6 +98,71 @@ docker build -t myapp:latest .
 <span class="cm"># helpful cleanup: remove dangling images</span>
 docker image prune -f</pre>
         <p class="desc">Essential Docker CLI commands to get containers running, inspect images/containers, and perform cleanup.</p>
+      </article>
+
+      <article class="card" data-cat="cli" data-search="docker volumes bind mount named volume persist data lost">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>docker-volumes.sh</b></span>
+          <span class="tag">cli</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre><span class="cm"># bind mount: sync a host folder straight into the container</span>
+docker run -v <span class="fn">$(pwd)</span>/data:/app/data myapp
+
+<span class="cm"># named volume: storage Docker manages for you, independent of any container</span>
+docker volume create mydata
+docker run -v mydata:/app/data myapp
+
+<span class="cm"># list, inspect, and remove volumes</span>
+docker volume ls
+docker volume inspect mydata
+docker volume rm mydata</pre>
+        <p class="desc">Anything a container writes to its own filesystem lives in a writable layer that's destroyed the moment you <code>docker rm</code> it — a very common "why did my database lose all its data" surprise. A bind mount ties a path directly to something on the host; a named volume is storage Docker manages on your behalf. Either one survives container removal, which is what you actually want for anything worth keeping.</p>
+      </article>
+
+      <article class="card" data-cat="cli" data-search="docker compose multi container services network up down yml">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>docker-compose-basics.yml</b></span>
+          <span class="tag">cli</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre><span class="cm"># docker-compose.yml</span>
+services:
+  web:
+    build: .
+    ports:
+      - <span class="str">"8080:80"</span>
+    depends_on:
+      - redis
+  redis:
+    image: <span class="str">redis:7</span>
+
+<span class="cm"># start everything defined above, rebuilding images if needed</span>
+docker compose up --build
+
+<span class="cm"># stop and remove containers + network (not volumes, by default)</span>
+docker compose down</pre>
+        <p class="desc">Compose turns a pile of <code>docker run</code> flags into one readable file, and every service in it can reach the others by name — <code>web</code> connects to <code>redis:6379</code> with no manual <code>--network</code> setup, because Compose puts all its services on a shared network automatically. That's the same service-name addressing that fixes the classic Redis "connection refused" error when an app and Redis end up in separate containers.</p>
+      </article>
+
+      <article class="card" data-cat="cli" data-search="docker cleanup prune disk space dangling unused images system df">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>docker-cleanup.sh</b></span>
+          <span class="tag">cli</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre><span class="cm"># see how much space images, containers, and volumes are using</span>
+docker system df
+
+<span class="cm"># remove stopped containers, unused networks, dangling images, build cache</span>
+docker system prune
+
+<span class="cm"># also remove ALL unused images (not just dangling ones) and unused volumes</span>
+docker system prune -a --volumes</pre>
+        <p class="desc">"Dangling" means an image layer with no tag at all, usually left behind by a rebuild — plain <code>prune</code> only touches those, so it's safe to run often. <code>-a</code> removes every image not used by a running container, tagged or not, and <code>--volumes</code> also deletes unused named volumes — run that combination deliberately, since it's the one that can actually delete data you meant to keep.</p>
       </article>
 
     </div>

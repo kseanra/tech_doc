@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn active" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -108,7 +108,7 @@ git config --global commit.gpgsign true
 
 <span class="cm"># one-off signed commit, if global gpgsign is off</span>
 git commit -S -m <span class="str">"message"</span></pre>
-        <p class="desc">The email on the GPG key (<code>gpg --list-secret-keys</code>) must match a verified email on your GitHub account, or commits show up as unverified. Push and check for the[...]</p>
+        <p class="desc">The email on the GPG key (<code>gpg --list-secret-keys</code>) must match a verified email on your GitHub account, or commits show up as unverified. Push and check for the green "Verified" badge next to the commit on GitHub to confirm the key was actually picked up.</p>
       </article>
 
       <article class="card" data-cat="cli" data-search="git multiple github accounts gpg signing key ssh config work personal identity">
@@ -147,7 +147,7 @@ git remote set-url origin git@github.com-work:org/repo.git
 
 <span class="cm"># confirm which key actually signed a commit</span>
 git log --show-signature -1</pre>
-        <p class="desc"><code>includeIf gitdir</code> swaps <code>user.email</code> and <code>signingkey</code> automatically based on which folder a repo lives in, while the SSH <code>Host</code[...]</p>
+        <p class="desc"><code>includeIf gitdir</code> swaps <code>user.email</code> and <code>signingkey</code> automatically based on which folder a repo lives in, while the SSH <code>Host</code> alias controls which private key authenticates the connection to GitHub itself. Together they let a clone under <code>~/work/</code> push and sign as your work identity, and one under <code>~/personal/</code> do the same as your personal identity, without ever running <code>git config</code> by hand.</p>
       </article>
 
     </div>

@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn active" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -54,7 +54,7 @@
         <pre>squares = [n**2 <span class="kw">for</span> n <span class="kw">in</span> range(10)]
 evens   = [n <span class="kw">for</span> n <span class="kw">in</span> range(20) <span class="kw">if</span> n % 2 == 0]
 pairs   = {n: n**2 <span class="kw">for</span> n <span class="kw">in</span> range(5)}   <span class="cm"># dict comprehension</span></pre>
-        <p class="desc">Readable up to one <code>for</code> and one <code>if</code>. Beyond that, a plain loop is usually clearer to the next reader.</p>
+        <p class="desc">Readable up to one <code>for</code> and one <code>if</code>. Beyond that, a plain loop is usually clearer to the next reader — a nested comprehension with two <code>for</code> clauses can still be correct, but it forces whoever reads it to mentally unroll it into loops anyway, at which point the loop is the more honest version of the code.</p>
       </article>
 
       <article class="card" data-cat="python" data-search="python f-strings formatting string interpolation">
@@ -68,7 +68,7 @@ pairs   = {n: n**2 <span class="kw">for</span> n <span class="kw">in</span> rang
 
 <span class="fn">print</span>(<span class="str">f"{name} scored {score:.1f}%"</span>)   <span class="cm"># Ada scored 97.4%</span>
 <span class="fn">print</span>(<span class="str">f"{name!r} → {score=}"</span>)          <span class="cm"># 'Ada' → score=97.436</span></pre>
-        <p class="desc">The <code>=</code> specifier (3.8+) prints the expression and its value together — handy for quick debugging without a separate <code>print</code>.</p>
+        <p class="desc">The <code>=</code> specifier (3.8+) prints the expression and its value together — handy for quick debugging without a separate <code>print</code>. An f-string is evaluated at runtime like any other expression, so <code>f"{a + b}"</code> or even <code>f"{some_func()}"</code> works directly inside the braces, with no separate <code>.format()</code> call needed.</p>
       </article>
 
       <article class="card" data-cat="python" data-search="python context manager with open file">
@@ -81,7 +81,7 @@ pairs   = {n: n**2 <span class="kw">for</span> n <span class="kw">in</span> rang
         <pre><span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.txt"</span>) <span class="kw">as</span> f:
     lines = f.readlines()
 <span class="cm"># file is closed automatically here, even on error</span></pre>
-        <p class="desc">Use <code>with</code> for anything that needs cleanup — files, locks, DB connections. It guarantees teardown even if the block raises.</p>
+        <p class="desc">Use <code>with</code> for anything that needs cleanup — files, locks, DB connections. It guarantees teardown even if the block raises. Writing your own is just as common as using the built-in ones: a class with <code>__enter__</code>/<code>__exit__</code>, or a generator function wrapped in <code>@contextlib.contextmanager</code>, gets you the same guaranteed-cleanup behavior for anything from a temp directory to a timed benchmark block.</p>
       </article>
 
     </div>

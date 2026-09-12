@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn active" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn active" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -58,7 +58,7 @@
   align-items: <span class="str">center</span>;
   min-height: <span class="str">100vh</span>;
 }</pre>
-        <p class="desc">The one-liner every developer eventually memorizes. Works on any container; swap <code>min-height</code> for a fixed height if the parent isn't full-viewport.</p>
+        <p class="desc">The one-liner every developer eventually memorizes. Works on any container; swap <code>min-height</code> for a fixed height if the parent isn't full-viewport. On mobile, <code>100vh</code> can measure taller than what's actually visible before the browser's address bar collapses — swap in <code>100dvh</code> (dynamic viewport height) if that jump matters.</p>
       </article>
 
       <article class="card" data-cat="css" data-search="css grid template areas layout named lines">
@@ -80,7 +80,7 @@
 .sidebar { grid-area: <span class="str">sidebar</span>; }
 .content { grid-area: <span class="str">content</span>; }
 .footer  { grid-area: <span class="str">footer</span>;  }</pre>
-        <p class="desc">Named template areas read like ASCII art of the page itself — the fastest way to reason about a layout without counting grid lines.</p>
+        <p class="desc">Named template areas read like ASCII art of the page itself — the fastest way to reason about a layout without counting grid lines. Redefine <code>grid-template-areas</code> inside a media query to rearrange the same layout for mobile, and the responsive version stays just as readable as the desktop one.</p>
       </article>
 
       <article class="card" data-cat="css" data-search="css custom properties variables root theming">
@@ -99,7 +99,44 @@
   background: <span class="fn">var</span>(--brand);
   padding: <span class="fn">var</span>(--gap);
 }</pre>
-        <p class="desc">Custom properties cascade and can be overridden per-component or per-media-query, unlike Sass variables which are compiled away.</p>
+        <p class="desc">Custom properties cascade and can be overridden per-component or per-media-query, unlike Sass variables which are compiled away. They're also readable at runtime with <code>getComputedStyle</code>, so JavaScript can read or update a design token directly — a preprocessor variable no longer exists by the time the browser sees the CSS, so it can never do that.</p>
+      </article>
+
+      <article class="card" data-cat="css" data-search="css clamp fluid responsive typography spacing without media queries">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>clamp-responsive.css</b></span>
+          <span class="tag">css</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre><span class="cm">/* fluid type: scales between a min and max based on viewport width */</span>
+h1 {
+  font-size: <span class="fn">clamp</span>(<span class="str">1.5rem</span>, <span class="str">4vw + 1rem</span>, <span class="str">3rem</span>);
+}
+
+<span class="cm">/* fluid spacing works exactly the same way */</span>
+.section {
+  padding-block: <span class="fn">clamp</span>(<span class="str">1rem</span>, <span class="str">5vw</span>, <span class="str">4rem</span>);
+}</pre>
+        <p class="desc"><code>clamp(min, preferred, max)</code> replaces a stack of media-query breakpoints with one line — the middle value does the scaling, the outer two stop it from getting unreadably small or absurdly large. No JavaScript, no resize listener, and unlike fixed breakpoints it keeps responding smoothly if the user zooms.</p>
+      </article>
+
+      <article class="card" data-cat="css" data-search="css container queries component based responsive @container">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>container-queries.css</b></span>
+          <span class="tag">css</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre>.card-container {
+  container-type: <span class="str">inline-size</span>;
+  container-name: <span class="str">card</span>;
+}
+
+<span class="fn">@container</span> card (min-width: <span class="str">400px</span>) {
+  .card { grid-template-columns: <span class="str">120px 1fr</span>; }
+}</pre>
+        <p class="desc">A media query only knows the viewport's size; a container query lets a component style itself based on the size of its own container instead. The same card component can stack in a narrow sidebar and switch to a two-column layout in a wide one, with no idea what page it's sitting on.</p>
       </article>
 
     </div>

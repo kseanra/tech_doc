@@ -21,13 +21,13 @@
   <nav class="sidebar" id="tabs">
     <div class="eyebrow">// guides</div>
     <a class="tab-btn" href="/guides/">all guides</a>
-    <a class="tab-btn" href="/guides/css/">css<span class="count">3</span></a>
+    <a class="tab-btn" href="/guides/css/">css<span class="count">5</span></a>
     <a class="tab-btn" href="/guides/javascript/">javascript<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/python/">python<span class="count">3</span></a>
     <a class="tab-btn" href="/guides/cli/">cli / git<span class="count">4</span></a>
     <a class="tab-btn" href="/guides/api/">api ref<span class="count">2</span></a>
-    <a class="tab-btn active" href="/guides/markdown/">markdown<span class="count">1</span></a>
-    <a class="tab-btn" href="/guides/docker/">docker<span class="count">1</span></a>
+    <a class="tab-btn active" href="/guides/markdown/">markdown<span class="count">4</span></a>
+    <a class="tab-btn" href="/guides/docker/">docker<span class="count">4</span></a>
   </nav>
 
   <main>
@@ -63,6 +63,66 @@
           <tr><td><code>&gt; quote</code></td><td class="muted">Blockquote</td></tr>
           <tr><td><code>| a | b |</code></td><td class="muted">Table row (header separator: <code>|---|---|</code>)</td></tr>
         </table>
+      </article>
+
+      <article class="card" data-cat="markdown" data-search="markdown gfm github flavored task list checkbox strikethrough footnote autolink">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>gfm-extras.md</b></span>
+          <span class="tag">md</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre>- [x] done task
+- [ ] todo task
+
+~~strikethrough text~~
+
+Auto-linked: https://example.com becomes clickable on its own
+
+Footnote reference[^1]
+
+[^1]: The footnote text, rendered at the bottom of the document.</pre>
+        <p class="desc">Task lists, strikethrough, autolinks and footnotes are GitHub Flavored Markdown (GFM) extensions, not part of the original CommonMark spec. They render correctly on GitHub, GitLab, and most modern renderers, but can show up as literal text — <code>- [ ]</code>, <code>~~text~~</code> — on a stricter parser, like some static site generators or npm's registry README renderer. Check the target before relying on them.</p>
+      </article>
+
+      <article class="card" data-cat="markdown" data-search="markdown common mistakes not rendering list blank line indent nested code block line break">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>common-mistakes.md</b></span>
+          <span class="tag">md</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre><span class="cm"># no blank line before a list → merges into the paragraph</span>
+This is a paragraph
+- item one          <span class="cm">← renders as plain text, not a list</span>
+
+This is a paragraph
+
+- item one           <span class="cm">← blank line above → renders as a real list</span>
+
+<span class="cm"># nesting needs 4-space indent, not 2</span>
+- parent item
+    - nested item     <span class="cm">← 4 spaces (or a tab) — 2 often fails to nest</span>
+
+<span class="cm"># hard line break needs two trailing spaces (invisible!)</span>
+Line one
+Line two              <span class="cm">← the two spaces after "one" force a &lt;br&gt;</span></pre>
+        <p class="desc">Most "why isn't my Markdown rendering right" questions come down to one of these three: a missing blank line around a block element, under-indenting a nested list item, or expecting a single newline to break a line the way it would in plain text. Markdown collapses a lone newline into the same paragraph unless you add a hard break.</p>
+      </article>
+
+      <article class="card" data-cat="markdown" data-search="markdown reference style links footnote definition long url readability">
+        <div class="card-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span class="card-title"><b>links-and-references.md</b></span>
+          <span class="tag">md</span>
+          <button class="copy-btn">copy</button>
+        </div>
+        <pre>[inline link](https://example.com "optional title")
+
+[reference-style link][docs]
+
+[docs]: https://example.com/docs "optional title"</pre>
+        <p class="desc">Reference-style links keep long URLs out of the sentence you're actually writing — useful when the same link is repeated many times in a doc, or when the raw URL is long enough to make the source hard to read. The reference definition can live anywhere in the file, including all grouped together at the bottom, without changing how anything renders.</p>
       </article>
 
     </div>
