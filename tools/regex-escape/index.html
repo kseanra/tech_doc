@@ -5,8 +5,8 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regex Escape (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Escape special characters so a literal string is safe to drop into a regex. Coming soon to DevFixTools — a free, client-side developer tools site.">
+<title>Regex Escape — Escape Special Characters for a Regex (Free) | DevFixTools</title>
+<meta name="description" content="Escape a literal string so it's safe to drop into a regular expression. Handles all the JavaScript regex metacharacters, runs entirely in your browser.">
 <link rel="canonical" href="https://www.skservices.co.nz/tools/regex-escape/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +20,42 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / regex escape</div>
-    <h1 class="section-head">Regex Escape</h1>
-    <p class="section-sub">Escape special characters so a literal string is safe to drop into a regex.</p>
+    <div class="tool-head">
+      <h1 class="section-head">Regex Escape</h1>
+      <p class="section-sub">Paste a literal string — a filename, a URL, a piece of user input — and get back a version with every regex metacharacter escaped, safe to embed inside a pattern.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today.
+    <div class="tool-panel">
+      <div class="panel-label">Literal string</div>
+      <textarea id="reInput" placeholder="e.g. file (v2).txt or https://example.com/a?b=1" spellcheck="false"></textarea>
+    </div>
+
+    <div class="field-row">
+      <label><input type="checkbox" id="reEscapeSlash"> also escape <code>/</code> (for a <code>/pattern/</code> literal)</label>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn primary" id="btnEscape">Escape</button>
+      <button class="btn" id="btnCopy">Copy output</button>
+      <button class="btn" id="btnClear">Clear</button>
+    </div>
+
+    <div class="tool-error" id="reError"></div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Escaped, ready for a regex</div>
+      <pre class="tool-output" id="reOutput"></pre>
+    </div>
+
+    <div class="prose">
+      <h2>Why you need to escape a string before it goes in a regex</h2>
+      <p>A regular expression treats a set of characters as instructions rather than literal text: <code>.</code> means "any character," <code>(</code> and <code>)</code> mark a capture group, <code>*</code> and <code>+</code> are quantifiers, <code>^</code> and <code>$</code> anchor to the start and end of a line, and <code>[</code>, <code>]</code>, <code>{</code>, <code>}</code>, <code>|</code>, and <code>\</code> all carry their own special meaning. If you build a pattern by concatenating a raw string into it — a filename typed by a user, a hostname pulled from a config file, a search term someone entered into a search box — any of those characters can silently change what the pattern matches, or throw a "nothing to repeat" or "unterminated character class" error at runtime.</p>
+      <p>This tool runs the same escaping logic JavaScript's own documentation recommends: every character in the set <code>. * + ? ^ $ { } ( ) | [ ] \</code> gets a backslash in front of it, turning the string into a sequence that a regex engine will match character-for-character instead of interpreting.</p>
+      <h2>A concrete example</h2>
+      <p>Say you want to find every occurrence of the literal filename <code>report (final).pdf</code> inside a block of text using a regex. Used unescaped, <code>(final)</code> would be read as a capture group and the parentheses would vanish from the match entirely — the search would actually be looking for <code>report final.pdf</code> with no parentheses at all, which is not what you typed. Run it through this tool first and you get <code>report\ \(final\)\.pdf</code>, which matches the string byte-for-byte, including the parentheses and the literal dot before <code>pdf</code>.</p>
+      <h2>The forward-slash option</h2>
+      <p>Escaping <code>/</code> is not part of the standard character set, because <code>/</code> has no meaning inside a regex <em>pattern</em> itself — it only matters if you're pasting the result inside a JavaScript regex <em>literal</em> written as <code>/pattern/flags</code>, where an unescaped <code>/</code> would prematurely end the literal. Tick the checkbox above if that's how you plan to use the output; leave it unticked if you're passing the escaped string to <code>new RegExp(...)</code> as a plain string, where <code>/</code> needs no special treatment.</p>
+      <p>Once you've got an escaped literal, you can drop it straight into the <a href="/tools/regex-tester/">Regex Tester</a> to confirm it matches what you expect against real sample text.</p>
     </div>
   </main>
 
@@ -43,5 +74,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/regex-escape.js"></script>
 </body>
 </html>

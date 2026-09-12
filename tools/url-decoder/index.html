@@ -47,7 +47,11 @@
 
     <div class="prose">
       <h2>Why decoding sometimes fails</h2>
-      <p>Decoding throws an error when a <code>%</code> isn't followed by exactly two valid hex digits — often the sign that the string was already decoded once, or was truncated when copied.</p>
+      <p>Percent-encoding represents one byte as <code>%</code> followed by exactly two hex digits — <code>%20</code> for a space, <code>%2F</code> for a forward slash, and so on. Decoding throws an error when a <code>%</code> isn't followed by two valid hex characters, which usually means one of three things: the string was already decoded once and the remaining <code>%</code> is a literal percent sign that was never meant to be decoded again; the string was truncated mid-sequence when it was copied (a common casualty of character limits in chat apps and spreadsheets); or it isn't actually percent-encoded at all and just happens to contain a <code>%</code>.</p>
+      <h3>Worked example</h3>
+      <p><code>hello%20world</code> decodes to <code>hello world</code>. Try decoding <code>100%</code> off the same input box and you'll get the "not valid percent-encoding" error, because <code>%</code> here is a literal percent sign with nothing valid following it — exactly the ambiguity that makes this error common on any text that legitimately contains a <code>%</code> character alongside real encoded segments.</p>
+      <h3><code>+</code> in query strings</h3>
+      <p>Inside a URL's query string specifically (not the path), a literal <code>+</code> traditionally means a space — a convention from HTML form submission (<code>application/x-www-form-urlencoded</code>), not from the URL spec itself. This tool's decoder follows <code>decodeURIComponent</code>'s behavior, which treats <code>+</code> literally and does <i>not</i> convert it to a space; if you're decoding a query string that came from an HTML form and expect <code>+</code> to mean space, you'll need to swap <code>+</code> for <code>%20</code> (or a literal space) before decoding, or use a form-data-aware parser instead.</p>
       <p>Need to go the other way? Use the <a href="/tools/url-encoder/">URL Encoder</a>, or hit <b>Swap</b> above.</p>
     </div>
   </main>

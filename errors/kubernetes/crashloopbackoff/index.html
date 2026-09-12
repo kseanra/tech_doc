@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes error: CrashLoopBackOff — fix it | DevFixTools</title>
+<meta name="description" content="Fix Kubernetes' CrashLoopBackOff pod status. Read the real error with kubectl logs --previous, and the most common root causes.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/kubernetes/crashloopbackoff/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / kubernetes / crashloopbackoff</div>
+    <h1 class="section-head">Kubernetes: CrashLoopBackOff</h1>
+    <p class="section-sub">A status, not a cause — the container is starting, crashing, and being restarted on an increasing backoff delay. Here's where to actually find out why.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p><code>kubectl get pods</code> shows a pod stuck like this:</p>
+      <pre>NAME                     READY   STATUS             RESTARTS   AGE
+my-app-7d8f9c6b4-x2kqz   0/1     CrashLoopBackOff   7          6m</pre>
+
+      <h2>Why it happens</h2>
+      <p><code>CrashLoopBackOff</code> just means Kubernetes tried to start the container, the container process exited (crashed, or exited cleanly with a non-zero code), and Kubernetes is now waiting progressively longer between restart attempts (the "backoff") to avoid hammering a container that's never going to succeed. It's a symptom, not a diagnosis — the actual cause is almost always in the application's own logs from the crashed attempt, not in anything Kubernetes itself reports directly.</p>
+
+      <h2>Fix it — find the real error first</h2>
+      <p>The single most useful command here is checking the logs from the <i>previous</i> (crashed) attempt, not the current one, since a fast-crashing container may not have current logs yet:</p>
+      <pre>kubectl logs my-app-7d8f9c6b4-x2kqz --previous</pre>
+      <p>This almost always shows the application's own stack trace or startup error — a missing environment variable, a database connection failure, an unhandled exception during startup. Fix whatever that log actually says first; the CrashLoopBackOff status itself gives you no information about the cause beyond "the container isn't staying up."</p>
+      <p>If <code>--previous</code> shows nothing useful, get the full picture of what Kubernetes thinks happened, including resource limits and events:</p>
+      <pre>kubectl describe pod my-app-7d8f9c6b4-x2kqz</pre>
+      <p>Look specifically at the <b>Last State</b> and <b>Events</b> sections near the bottom — a container killed for exceeding its memory limit shows <code>OOMKilled</code> here, which application logs alone won't always make obvious.</p>
+
+      <h2>Common root causes once you can see the real error</h2>
+      <ul>
+        <li><b>Missing configuration</b> — a required environment variable, ConfigMap, or Secret the container expects isn't mounted or set.</li>
+        <li><b>Failing readiness/liveness probe</b> combined with a startup that's simply slower than the probe's initial delay — the app is fine, but Kubernetes keeps killing it before it finishes booting.</li>
+        <li><b>OOMKilled</b> — the container's memory limit is set lower than what it actually needs; check <code>resources.limits.memory</code> in the pod spec.</li>
+        <li><b>Wrong command or entrypoint</b> — the image's <code>CMD</code>/<code>ENTRYPOINT</code> exits immediately because it was built for a different invocation than the one the pod spec provides.</li>
+      </ul>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

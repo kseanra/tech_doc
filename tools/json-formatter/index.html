@@ -57,15 +57,20 @@
 
     <div class="prose">
       <h2>How this JSON formatter works</h2>
-      <p>Paste any JSON object or array into the input box above. <b>Format</b> pretty-prints it with your chosen indent; <b>Minify</b> strips all whitespace down to the smallest valid representation. If the JSON is malformed, the error banner reports the line and column where parsing failed, so you don't have to scan the whole payload by eye.</p>
+      <p>Paste any JSON object or array into the input box above. <b>Format</b> pretty-prints it with your chosen indent; <b>Minify</b> strips all whitespace down to the smallest valid representation. Both run through the browser's own <code>JSON.parse</code> first, so if the input isn't actually valid JSON, you get a real parser error rather than a formatter guessing at your intent.</p>
       <h3>Common JSON mistakes this catches</h3>
       <ul>
-        <li>Trailing commas after the last item in an object or array</li>
-        <li>Single quotes instead of double quotes around strings and keys</li>
-        <li>Unquoted object keys</li>
-        <li>A missing comma or closing brace/bracket</li>
+        <li>Trailing commas after the last item in an object or array — valid in JavaScript object literals, invalid in JSON</li>
+        <li>Single quotes instead of double quotes around strings and keys — JSON requires double quotes, no exceptions</li>
+        <li>Unquoted object keys (<code>{name: "x"}</code> instead of <code>{"name": "x"}</code>)</li>
+        <li>A missing comma between array/object entries, or a missing closing brace or bracket</li>
+        <li><code>undefined</code>, comments, or a bare function used as a value — none of these exist in the JSON spec, even though they're legal JavaScript</li>
       </ul>
-      <p>Nothing you paste here is sent anywhere — parsing and formatting run with the browser's built-in <code>JSON.parse</code>/<code>JSON.stringify</code>.</p>
+      <h3>Reading the error message</h3>
+      <p>When parsing fails, the banner reports the exact line and column where the browser's parser gave up — for example, a trailing comma before a closing <code>]</code> is reported at the position of the <code>]</code> itself, since that's where the parser expected another value and found the end of the array instead. It won't tell you "line 12 has a trailing comma" directly, but knowing the exact position turns a search through a large payload into a single jump to the right spot.</p>
+      <h3>Worked example</h3>
+      <p>Paste <code>{name:'Ada', tags:['x','y',],}</code> and Format will report a parse error, because none of unquoted keys, single quotes, or trailing commas are valid JSON — even though every one of those is perfectly legal in a JavaScript object literal, which is where this input most often comes from (copying an object straight out of source code instead of a real JSON payload). The valid form is <code>{"name": "Ada", "tags": ["x", "y"]}</code>.</p>
+      <p>Nothing you paste here is sent anywhere — parsing and formatting both run locally, using the browser's built-in <code>JSON.parse</code>/<code>JSON.stringify</code>, the same functions any JavaScript runtime uses under the hood.</p>
     </div>
   </main>
 

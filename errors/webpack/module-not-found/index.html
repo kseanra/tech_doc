@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webpack error: Module not found: Can't resolve — fix it | DevFixTools</title>
+<meta name="description" content="Fix webpack/Vite's 'Module not found: Error: Can't resolve' error. Covers path typos, case-sensitivity on CI, missing extensions, and alias misconfiguration.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/webpack/module-not-found/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / webpack / module not found</div>
+    <h1 class="section-head">Webpack/Vite: Module not found — Can't resolve</h1>
+    <p class="section-sub">The bundler can't locate a file or package you imported. Almost always one of four specific causes.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Running a dev server or build fails with something like:</p>
+      <pre>ERROR in ./src/App.js
+Module not found: Error: Can't resolve './components/Header' in '/project/src'</pre>
+      <p>(Vite's phrasing is similar: <code>Failed to resolve import "./components/Header" from "src/App.js"</code>.)</p>
+
+      <h2>Why it happens, and how to fix each cause</h2>
+      <p><b>1. A typo or wrong relative path.</b> By far the most common cause — count the <code>../</code> segments carefully, and remember the path is relative to the <i>importing file's</i> own directory, not the project root. Open the target file directly at the path you typed to confirm it actually exists there.</p>
+      <p><b>2. Case mismatch that only fails on CI or Linux.</b> macOS and Windows filesystems are case-insensitive by default, so <code>import Header from './components/header'</code> can work fine on your laptop while pointing at a file actually named <code>Header.jsx</code>, and then fail the moment it runs on a case-sensitive Linux CI runner or production server. This is one of the most common "works on my machine" bugs in frontend tooling specifically because local development usually hides it completely.</p>
+      <p><b>3. A missing or unconfigured file extension.</b> If the actual file is <code>Header.tsx</code> but your bundler's <code>resolve.extensions</code> config doesn't include <code>.tsx</code> (common after adding TypeScript to a plain JS project's existing webpack config), an extension-less import silently fails to resolve even though the file is right there. Check the config:</p>
+      <pre>// webpack.config.js
+resolve: {
+  extensions: ['.js', '.jsx', '.ts', '.tsx']
+}</pre>
+      <p><b>4. A path alias that's only configured on one side.</b> An import like <code>import Header from '@/components/Header'</code> needs the <code>@</code> alias defined in the bundler's own config (webpack's <code>resolve.alias</code>, Vite's <code>resolve.alias</code>) — and, separately, in <code>tsconfig.json</code>'s <code>paths</code> if you're using TypeScript, since that file only affects type-checking, not how the bundler actually resolves the import at build time. Defining the alias in one but not the other produces exactly this error (or the inverse: TypeScript is happy, but the bundler can't find the file at runtime).</p>
+
+      <h2>A quick way to narrow it down</h2>
+      <p>Confirm the file genuinely exists exactly where you think, from the shell, rather than trusting your editor's file tree (which can cache a stale view after a rename):</p>
+      <pre>ls -la src/components/</pre>
+      <p>If the file is there and the casing matches exactly, move on to checking extensions and aliases; if it's a package from <code>node_modules</code> rather than your own code failing to resolve, that's a different problem — re-check the package name for typos and confirm it's actually listed in <code>package.json</code>'s dependencies.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

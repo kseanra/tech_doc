@@ -5,8 +5,8 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unix Timestamp (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Quick current-timestamp lookup. Coming soon to DevFixTools — a free, client-side developer tools site.">
+<title>Unix Timestamp Now — Current Epoch Time (Free) | DevFixTools</title>
+<meta name="description" content="The current Unix timestamp in seconds and milliseconds, live-updating, with one-click copy. For converting a specific date, see the full Timestamp Converter.">
 <link rel="canonical" href="https://www.skservices.co.nz/tools/unix-timestamp/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +20,43 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / unix timestamp</div>
-    <h1 class="section-head">Unix Timestamp</h1>
-    <p class="section-sub">Quick current-timestamp lookup.</p>
+    <div class="tool-head">
+      <h1 class="section-head">Unix Timestamp Now</h1>
+      <p class="section-sub">The current time as a Unix timestamp, updating live. Need to convert a <em>specific</em> date instead of "right now"? Use the <a href="/tools/timestamp-converter/">Timestamp Converter</a>.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today, or use the <a href="/tools/timestamp-converter/">Timestamp Converter</a> for unix-timestamp conversion in both directions.
+    <div class="tool-panel">
+      <div class="panel-label">Seconds since epoch</div>
+      <pre class="tool-output" id="tsNowSeconds" style="font-size:1.6rem;"></pre>
+    </div>
+    <div class="tool-actions">
+      <button class="btn" id="btnCopySeconds">Copy seconds</button>
+    </div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Milliseconds since epoch</div>
+      <pre class="tool-output" id="tsNowMillis"></pre>
+    </div>
+    <div class="tool-actions">
+      <button class="btn" id="btnCopyMillis">Copy milliseconds</button>
+    </div>
+
+    <div class="tool-panel">
+      <div class="panel-label">ISO 8601 (UTC)</div>
+      <pre class="tool-output" id="tsNowIso"></pre>
+    </div>
+    <div class="tool-actions">
+      <button class="btn" id="btnCopyIso">Copy ISO date</button>
+      <button class="btn primary" id="btnFreeze">Freeze</button>
+    </div>
+
+    <div class="prose">
+      <h2>What a Unix timestamp is</h2>
+      <p>A Unix timestamp (also called epoch time) is the number of seconds that have elapsed since <b>00:00:00 UTC on 1 January 1970</b>, ignoring leap seconds. It's the internal representation most systems use for "a point in time" because it's a single integer that sorts, compares, and does arithmetic naturally — no timezone, no calendar, no daylight saving to reason about until you're ready to display it to a person. Log files, database <code>created_at</code> columns, JWT <code>exp</code>/<code>iat</code> claims, and API responses across almost every backend language store time this way internally, even when they render it as a human-readable date on the way out.</p>
+      <h2>Seconds vs. milliseconds — the most common mix-up</h2>
+      <p>Unix time is defined in seconds, but JavaScript's <code>Date.now()</code> and <code>new Date().getTime()</code> return <b>milliseconds</b> since the epoch, while most server-side languages (Python's <code>time.time()</code> aside, which also returns seconds as a float) and most database and API conventions use seconds. Mixing the two up is one of the most common timestamp bugs there is: feed a millisecond value into a function expecting seconds and you'll get a date sometime in the late 1970s (a value 1000x too small reads as far too early); feed a second value into something expecting milliseconds and you'll land in 1970 itself. Both values are shown above, live, specifically so you can sanity-check which one a system in front of you is actually emitting — paste a timestamp you're debugging next to these and see which column it's closer to in digit count (ten digits is seconds, thirteen is milliseconds, for dates anywhere near today).</p>
+      <h2>When to use this vs. the full converter</h2>
+      <p>This page answers exactly one question — "what is the timestamp right now" — which comes up constantly when you're writing a test fixture, setting an expiry a fixed offset from now, or eyeballing whether a value in a log line is recent. Hit <b>Freeze</b> to stop the clock and copy a value without it changing under you. For anything involving a timestamp that isn't "now" — converting a specific date to Unix time, or a specific Unix timestamp back to a readable date in a particular timezone — the <a href="/tools/timestamp-converter/">Timestamp Converter</a> is the right tool; it's built for bidirectional conversion rather than a live clock.</p>
     </div>
   </main>
 
@@ -43,5 +75,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/unix-timestamp.js"></script>
 </body>
 </html>

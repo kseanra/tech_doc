@@ -45,7 +45,13 @@
 
     <div class="prose">
       <h2>About version-4 UUIDs</h2>
-      <p>A v4 UUID is a 128-bit identifier built almost entirely from random bits (122 of them), formatted as <code>xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx</code>. The <code>4</code> marks the version, and the leading digit of the next group is constrained so the value is recognizable as a UUID. With that much randomness, collisions are astronomically unlikely — safe to use as primary keys, request IDs, or idempotency keys.</p>
+      <p>A v4 UUID is a 128-bit identifier built almost entirely from random bits (122 of them — the other 6 are fixed, to mark the version and variant), formatted as <code>xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx</code>. The <code>4</code> marks the version, and the leading digit of the next group (<code>y</code>) is constrained to one of <code>8</code>, <code>9</code>, <code>a</code>, or <code>b</code> so the value is recognizable as a valid UUID by anything that parses it.</p>
+      <h3>How unlikely is a collision, really?</h3>
+      <p>With 122 random bits, the number of possible v4 UUIDs is roughly 5.3 × 10<sup>36</sup>. To put that in perspective: you'd need to generate around a billion UUIDs per second for about a hundred years before the odds of any two ever matching reached even one in a billion. In practice this means you can generate v4 UUIDs independently on any number of machines, with no coordination between them, and treat collisions as effectively impossible for any real-world system.</p>
+      <h3>What this tool uses under the hood</h3>
+      <p>Generation happens via the browser's built-in <code>crypto.randomUUID()</code>, which draws from the operating system's cryptographically secure random number generator — the same quality of randomness used for generating encryption keys, not the weaker, predictable kind behind <code>Math.random()</code>. That matters if a UUID is ever used somewhere its unguessability is actually load-bearing (a password-reset token, an unlisted share link), rather than purely as a unique label.</p>
+      <h3>When a UUID is the wrong choice</h3>
+      <p>Because v4 UUIDs are pure randomness, they're deliberately unordered — generating ten in a row tells you nothing about the sequence they were created in, and using them as a database primary key can hurt insert performance on engines that store rows in primary-key order, since each new random UUID lands in an arbitrary spot in the index rather than appending at the end. If you need IDs that are both unique <i>and</i> roughly sortable by creation time, look into UUID v7 (time-ordered, standardized more recently) or a library implementing ULID/Snowflake-style IDs instead — this generator intentionally sticks to the widely-supported, purely-random v4 format.</p>
     </div>
   </main>
 

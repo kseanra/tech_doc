@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerShell error: running scripts is disabled — fix it | DevFixTools</title>
+<meta name="description" content="Fix PowerShell's 'cannot be loaded because running scripts is disabled on this system' error. Understand execution policy levels and set one safely.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/powershell/running-scripts-disabled/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / powershell / running scripts is disabled</div>
+    <h1 class="section-head">PowerShell: running scripts is disabled on this system</h1>
+    <p class="section-sub">Not a bug — a deliberate safety default. Here's what it's protecting against and how to loosen it just enough.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Running a <code>.ps1</code> script — your own, or one from an install guide (npm, nvm, a project's setup script) — fails with:</p>
+      <pre>File C:\Users\you\setup.ps1 cannot be loaded because running scripts is
+disabled on this system. For more information, see about_Execution_Policies
+at https:/go.microsoft.com/fwlink/?LinkID=135170.</pre>
+
+      <h2>Why it happens</h2>
+      <p>PowerShell's execution policy controls which scripts are allowed to run, precisely because a <code>.ps1</code> file can do anything a signed-in user can do, and Windows historically made it too easy to double-click a malicious script by accident. The default policy on a standard Windows install, <code>Restricted</code>, blocks all script files from running — only commands typed directly into the prompt work. This isn't specific to any one script; it blocks all of them until the policy is changed.</p>
+      <p>The available levels, from most to least restrictive: <code>Restricted</code> (no scripts at all, the default), <code>AllSigned</code> (only scripts with a trusted digital signature), <code>RemoteSigned</code> (local scripts you wrote run freely; scripts downloaded from the internet need a signature), and <code>Unrestricted</code> (everything runs, with a warning for downloaded files).</p>
+
+      <h2>Fix it</h2>
+      <p>Check your current policy first:</p>
+      <pre>Get-ExecutionPolicy</pre>
+      <p>The generally recommended setting for development machines is <code>RemoteSigned</code>, scoped to your user account only (so it doesn't require admin rights and doesn't change the policy machine-wide):</p>
+      <pre>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</pre>
+      <p>This lets scripts you write or scripts already on your machine run freely, while still requiring a signature for anything freshly downloaded — a reasonable middle ground rather than turning the protection off entirely.</p>
+
+      <h2>Still blocked after that? Check the file's zone</h2>
+      <p>A script downloaded via a browser is tagged internally as coming from the internet, and <code>RemoteSigned</code> will still block it even with the policy set correctly. Check for and remove that tag on a specific file:</p>
+      <pre>Unblock-File -Path .\setup.ps1</pre>
+      <p>If you only need to run one script once and don't want to touch the system-wide policy at all, bypass it for that single session:</p>
+      <pre>powershell -ExecutionPolicy Bypass -File .\setup.ps1</pre>
+      <p>This only affects that one invocation — your saved policy (checked with <code>Get-ExecutionPolicy</code>) is unchanged afterward.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

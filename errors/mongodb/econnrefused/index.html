@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MongoDB error: connect ECONNREFUSED — fix it | DevFixTools</title>
+<meta name="description" content="Fix MongoDB's 'connect ECONNREFUSED 127.0.0.1:27017' error. Covers the local mongod-not-running case and the Docker networking trap.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/mongodb/econnrefused/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / mongodb / econnrefused</div>
+    <h1 class="section-head">MongoDB: connect ECONNREFUSED</h1>
+    <p class="section-sub">Your app can't reach a MongoDB server at all — this is a networking failure, not an authentication or query problem.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Connecting with the driver, Mongoose, or <code>mongosh</code> fails with:</p>
+      <pre>MongoServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017</pre>
+
+      <h2>Why it happens</h2>
+      <p><code>ECONNREFUSED</code> means the operating system actively refused the connection — nothing was listening on that IP and port at all. This is a strictly earlier failure than an authentication or authorization error: MongoDB never even got the chance to check credentials, because no MongoDB process answered the connection attempt in the first place. The most common causes:</p>
+      <ul>
+        <li><b>The <code>mongod</code> process isn't running</b> — never started, or crashed after starting.</li>
+        <li><b>Wrong port</b> — a custom <code>--port</code> was used to start MongoDB, but the connection string still targets the default 27017.</li>
+        <li><b>Docker networking</b> — the classic case: your app runs in one container, MongoDB in another, and the app is still pointed at <code>127.0.0.1</code>, which inside a container refers to that container itself, not the host or a sibling container.</li>
+      </ul>
+
+      <h2>Fix it — local (non-Docker) setup</h2>
+      <p>Confirm the server is actually running and listening:</p>
+      <pre>systemctl status mongod
+# or, cross-platform:
+ps aux | grep mongod</pre>
+      <p>If it's not running, start it (via your OS's service manager, or directly with <code>mongod --dbpath /path/to/data</code>) and check its own startup log for why it might have failed silently — a lock file left over from an unclean shutdown, or a data directory permission problem, are both common.</p>
+
+      <h2>Fix it — the Docker case</h2>
+      <p>If MongoDB is running in a container and your app is too, <code>127.0.0.1</code> from inside the app's container will never reach a MongoDB container, because each container gets its own loopback interface, isolated from the host and from every other container. Point the connection string at the MongoDB container's <i>service name</i> instead — this only resolves automatically when both containers are on the same user-defined network, which Docker Compose sets up for you by default:</p>
+      <pre># docker-compose.yml
+services:
+  app:
+    build: .
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/mydb
+  mongo:
+    image: mongo:7</pre>
+      <p>If your app runs on the host directly (not in a container) but MongoDB runs in a container, use <code>localhost:27017</code> from the host <i>only if</i> you published the port with <code>-p 27017:27017</code> or an equivalent <code>ports:</code> entry — without that mapping, the container's port is invisible from outside it entirely. This is the same underlying networking model behind the equivalent <a href="/errors/redis/connection-refused/">Redis connection-refused error</a>.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

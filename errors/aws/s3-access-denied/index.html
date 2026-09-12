@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS error: S3 Access Denied (403 Forbidden) — fix it | DevFixTools</title>
+<meta name="description" content="Fix AWS S3's 'Access Denied' 403 error. Understand which of the four overlapping permission layers is actually blocking the request.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/aws/s3-access-denied/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / aws / s3 access denied</div>
+    <h1 class="section-head">AWS: S3 Access Denied (403 Forbidden)</h1>
+    <p class="section-sub">Four separate permission layers can each independently block an S3 request — here's how to find out which one actually is.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>A request to read, write, or list an S3 object or bucket fails with:</p>
+      <pre>&lt;Error&gt;
+  &lt;Code&gt;AccessDenied&lt;/Code&gt;
+  &lt;Message&gt;Access Denied&lt;/Message&gt;
+&lt;/Error&gt;</pre>
+      <p>(HTTP 403.) Notably, S3 gives you almost no detail about <i>which</i> rule denied the request — by design, to avoid leaking information about a bucket's configuration to an unauthorized caller.</p>
+
+      <h2>Why it happens</h2>
+      <p>S3 access is the intersection of up to four independent policy layers, and if <i>any one</i> of them denies the request, the whole request is denied — there's no "majority rules." The layers, roughly in the order worth checking:</p>
+      <ul>
+        <li><b>IAM policy</b> — attached to the user or role making the request. Does it grant <code>s3:GetObject</code> (or whichever action) on this specific bucket/key path?</li>
+        <li><b>Bucket policy</b> — attached to the bucket itself, can grant or explicitly deny access regardless of IAM. An explicit <code>"Effect": "Deny"</code> here always wins over any IAM allow.</li>
+        <li><b>S3 Block Public Access settings</b> — account-level and bucket-level switches that can override even a bucket policy that otherwise grants public access, specifically to prevent accidental public exposure.</li>
+        <li><b>Object ACLs</b> — legacy per-object permissions, largely superseded by bucket policies but still checked if present, especially on objects uploaded by a different AWS account.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>Start with AWS's own diagnostic tool rather than guessing — IAM Access Analyzer's policy simulator (or the newer console "Check public access" panel on the bucket) can evaluate a specific principal against a specific action and object, and tells you which layer is actually responsible for the denial:</p>
+      <pre>aws iam simulate-principal-policy \
+  --policy-source-arn arn:aws:iam::123456789012:role/my-role \
+  --action-names s3:GetObject \
+  --resource-arns arn:aws:s3:::my-bucket/my-key</pre>
+      <p>If that's not available, check in this order: confirm the IAM policy grants the action on the exact resource ARN (a wildcard-free typo in the bucket or key path is a very common cause); check the bucket policy for an explicit <code>Deny</code> statement, which silently beats any <code>Allow</code> elsewhere; and if the request is meant to be public or cross-account, confirm Block Public Access isn't set at the account or bucket level, since it overrides bucket-policy grants specifically to stop accidental exposure.</p>
+
+      <h2>Cross-account access specifically</h2>
+      <p>When the caller is in a different AWS account than the bucket owner, <i>both</i> the calling account's IAM policy and the bucket owner's bucket policy must explicitly allow the action — one side granting access is never sufficient on its own. This is the most common cause of "it works for me but not for our other account" reports.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java error: Could not find or load main class — fix it | DevFixTools</title>
+<meta name="description" content="Fix Java's 'Error: Could not find or load main class' error. Understand the classpath, package-vs-folder mismatch, and the working-directory trap.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/java/could-not-find-or-load-main-class/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / java / could not find or load main class</div>
+    <h1 class="section-head">Java: Could not find or load main class</h1>
+    <p class="section-sub">Almost always a classpath or package-path mismatch, not a missing file. Here's how to tell which one you've got.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Running a compiled program with <code>java</code> fails immediately with:</p>
+      <pre>Error: Could not find or load main class com.example.App
+Caused by: java.lang.ClassNotFoundException: com.example.App</pre>
+
+      <h2>Why it happens</h2>
+      <p>The <code>java</code> launcher looks for your class along the classpath — the set of directories and JARs it searches — using the class's fully-qualified name translated directly into a folder path. A class declared as <code>package com.example;</code> must live at <code>com/example/App.class</code> <i>relative to a classpath root</i>, not just anywhere on disk. Three things cause this error almost every time:</p>
+      <ul>
+        <li><b>Running from the wrong directory.</b> If <code>App.class</code> is compiled to <code>out/com/example/App.class</code>, you need to run <code>java -cp out com.example.App</code> — pointing the classpath at <code>out</code>, not at the folder containing the <code>.class</code> file itself.</li>
+        <li><b>Package declaration doesn't match the folder structure.</b> A file declaring <code>package com.example;</code> has to physically sit inside a <code>com/example/</code> folder relative to the source/classpath root — Java derives the expected location from the declaration, and a mismatch here is a compile-time warning in some setups but a runtime <code>ClassNotFoundException</code> in others.</li>
+        <li><b>You never actually compiled it</b> — running <code>java App.java</code> against a plain source file works in modern JDKs (11+) as a single-file launch shortcut, but running <code>java App</code> (no <code>.java</code>) expects a compiled <code>App.class</code> to already exist from an earlier <code>javac</code> run.</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>Compile explicitly first, so you're not relying on the single-file shortcut behaving the way you expect:</p>
+      <pre>javac -d out src/com/example/App.java</pre>
+      <p>Then run it, setting the classpath to the compiled-output root and naming the class by its full package path:</p>
+      <pre>java -cp out com.example.App</pre>
+      <p>If you're not using packages at all, drop the <code>com.example.</code> prefix entirely — an unqualified class name only resolves if the class truly has no <code>package</code> declaration.</p>
+      <p>Double-check the actual location of the compiled class file against what you're telling <code>java</code> to look for:</p>
+      <pre>find out -name "*.class"</pre>
+      <p>If that path doesn't match <code>&lt;classpath-root&gt;/com/example/App.class</code> exactly, that mismatch is the bug — fix the <code>-d</code> output directory on <code>javac</code>, the <code>-cp</code> value on <code>java</code>, or the <code>package</code> declaration in the source, whichever one is actually wrong.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

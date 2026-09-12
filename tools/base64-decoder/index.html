@@ -47,7 +47,11 @@
 
     <div class="prose">
       <h2>Why decoding sometimes fails</h2>
-      <p>A Base64 string must be made up only of <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>+</code>, <code>/</code>, and end with the correct amount of <code>=</code> padding (the total length must be a multiple of 4). Copy-pasting from an email client or chat app can silently strip trailing <code>=</code> characters or introduce line breaks — both will cause a decode error here.</p>
+      <p>A Base64 string must be made up only of <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>+</code>, <code>/</code>, and end with the correct amount of <code>=</code> padding (the total length, ignoring padding rules aside, has to work out to a whole number of 4-character groups). Copy-pasting from an email client, a chat app, or a PDF can silently strip trailing <code>=</code> characters, introduce line breaks in the middle of the string, or convert straight characters into typographic look-alikes — any of these breaks the decode.</p>
+      <h3>The Base64url trap</h3>
+      <p>Not every Base64-looking string uses the standard alphabet. JWTs and many URL-embedded tokens use <b>Base64url</b>, which replaces <code>+</code> with <code>-</code> and <code>/</code> with <code>_</code> specifically so the result is safe inside a URL without extra encoding, and usually omits the <code>=</code> padding entirely. Feed a Base64url string into a strict standard-Base64 decoder and it can fail outright, or — worse — silently decode to the wrong bytes if the decoder is lenient about the substituted characters. If your input contains <code>-</code> or <code>_</code> where you'd expect <code>+</code> or <code>/</code>, that's the tell; for JWTs specifically, use the <a href="/tools/jwt-decoder/">JWT Decoder</a>, which handles the url-safe variant automatically.</p>
+      <h3>Worked example</h3>
+      <p><code>aGVsbG8=</code> decodes cleanly to <code>hello</code>. Delete the trailing <code>=</code> and try again — some decoders (this one included, since padding is part of how the final group's byte count is determined) will report an error or return truncated/incorrect output, because the padding isn't cosmetic — it tells the decoder how many real bytes are in the final group.</p>
       <p>Need to go the other way? Use the <a href="/tools/base64-encoder/">Base64 Encoder</a>, or hit <b>Swap</b> above to flip the input/output in place.</p>
     </div>
   </main>

@@ -5,8 +5,8 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQL Formatter (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Pretty-print a SQL query for readability. Coming soon to DevFixTools — a free, client-side developer tools site.">
+<title>SQL Formatter — Pretty-Print a SQL Query (Free) | DevFixTools</title>
+<meta name="description" content="Pretty-print a SQL query: line breaks before major clauses, indented AND/OR, expanded column lists. Runs entirely in your browser, works with any SQL dialect.">
 <link rel="canonical" href="https://www.skservices.co.nz/tools/sql-formatter/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +20,41 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / sql formatter</div>
-    <h1 class="section-head">SQL Formatter</h1>
-    <p class="section-sub">Pretty-print a SQL query for readability.</p>
+    <div class="tool-head">
+      <h1 class="section-head">SQL Formatter</h1>
+      <p class="section-sub">Paste a query and get it broken onto readable lines — one clause per line, indented conditions, expanded column lists.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today.
+    <div class="tool-panel">
+      <div class="panel-label">Input</div>
+      <textarea id="sqlInput" placeholder="select id, name, email from users where active = 1 and created_at > '2024-01-01' order by created_at desc" spellcheck="false"></textarea>
+    </div>
+
+    <div class="field-row">
+      <label><input type="checkbox" id="sqlUpper" checked> uppercase keywords</label>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn primary" id="btnFormat">Format</button>
+      <button class="btn" id="btnCopy">Copy output</button>
+      <button class="btn" id="btnClear">Clear</button>
+    </div>
+
+    <div class="tool-error" id="sqlError"></div>
+    <div class="tool-ok" id="sqlOk"></div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Formatted</div>
+      <pre class="tool-output" id="sqlOutput"></pre>
+    </div>
+
+    <div class="prose">
+      <h2>How this formatter works</h2>
+      <p>This isn't a full SQL parser — it doesn't build an abstract syntax tree or understand your schema, and it won't validate that the query is semantically correct. What it does is recognize the major clause keywords (<code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>, the various <code>JOIN</code> forms, <code>GROUP BY</code>, <code>ORDER BY</code>, <code>HAVING</code>, <code>LIMIT</code>, and the DML keywords <code>INSERT INTO</code>, <code>UPDATE</code>, <code>SET</code>, <code>DELETE FROM</code>, <code>VALUES</code>) and break the query onto a new line before each one, indent <code>AND</code>/<code>OR</code> conditions inside a <code>WHERE</code> clause, and expand long comma-separated lists — a wide <code>SELECT</code> column list or a multi-column <code>GROUP BY</code> — onto their own lines. That covers the overwhelming majority of hand-written queries and works the same way across MySQL, PostgreSQL, SQLite, and SQL Server dialects, since the clause keywords are effectively identical across all of them.</p>
+      <h2>What it won't get right</h2>
+      <p>Because there's no real parser underneath, a keyword that appears inside a string literal or a quoted identifier (a column literally named <code>"order"</code>, for instance) can get treated as a clause boundary it isn't. Deeply nested subqueries are formatted clause-by-clause rather than recursively indented by nesting level, so a query with several layers of subqueries will format each layer's clauses correctly but won't visually stair-step the nesting the way a full SQL-aware formatter would. For anything you're about to run against production, always re-read the formatted output before treating it as the query you're going to execute — this tool changes whitespace only, never your SQL's actual tokens, but "changes whitespace only" is still worth double-checking on a two-thousand-row <code>UPDATE</code>.</p>
+      <h2>A before/after example</h2>
+      <p>Given <code>select u.id, u.name, o.total from users u join orders o on o.user_id = u.id where o.status = 'paid' and o.total > 100 order by o.total desc</code>, the formatter produces a <code>SELECT</code> line with the three columns, a <code>FROM</code> line, a <code>JOIN ... ON</code> line, a <code>WHERE</code> line followed by an indented <code>AND</code> line, and a final <code>ORDER BY</code> line — the same query, considerably easier to scan when it's buried in application code or a migration file six months from now.</p>
     </div>
   </main>
 
@@ -43,5 +73,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/sql-formatter.js"></script>
 </body>
 </html>

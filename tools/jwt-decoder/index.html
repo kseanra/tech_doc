@@ -54,7 +54,20 @@
 
     <div class="prose">
       <h2>What is a JWT?</h2>
-      <p>A JSON Web Token is three Base64url-encoded segments joined by dots: <code>header.payload.signature</code>. The header names the signing algorithm, the payload carries the claims (like <code>sub</code>, <code>exp</code>, custom fields), and the signature lets a server that holds the secret confirm the token hasn't been tampered with — which this page cannot check for you.</p>
+      <p>A JSON Web Token is three Base64url-encoded segments joined by dots: <code>header.payload.signature</code>. The header names the signing algorithm and token type; the payload carries the claims — the actual data the token asserts, like who it's for and when it expires; and the signature is a cryptographic value computed over the header and payload together, which lets a server holding the matching secret (or public key, for asymmetric algorithms) confirm neither segment has been altered since the token was issued.</p>
+      <h3>Standard claims you'll commonly see in the payload</h3>
+      <ul>
+        <li><code>iss</code> (issuer) — who created and signed the token</li>
+        <li><code>sub</code> (subject) — who the token is about, typically a user ID</li>
+        <li><code>aud</code> (audience) — who the token is intended for</li>
+        <li><code>exp</code> (expiration) and <code>iat</code> (issued at) — Unix timestamps in seconds; feed either into the <a href="/tools/timestamp-converter/">Timestamp Converter</a> to read them as a real date</li>
+        <li><code>nbf</code> (not before) — the token isn't valid until this time</li>
+      </ul>
+      <p>Everything beyond these is application-specific — roles, permissions, an email address, whatever the issuer chose to include.</p>
+      <h3>Why "decoded, not verified" is the important distinction</h3>
+      <p>Base64url is an encoding, not encryption — anyone can decode a JWT's header and payload with nothing more than a text editor and a bit of patience, secret key or not. What the secret key actually protects is the <i>signature</i>: whether this specific header+payload combination was really produced by the issuer, or tampered with afterward. This tool deliberately only decodes; it never checks the signature, because doing that correctly requires the issuer's secret or public key, which isn't something a generic browser tool should ask you to paste in. Never treat a JWT's claims as trustworthy just because you were able to read them here — a token's contents are only meaningful once its signature has been verified against the correct key, on the server side, using a proper JWT library.</p>
+      <h3>What this tool is actually useful for</h3>
+      <p>Despite not verifying anything, decoding is genuinely useful for debugging: confirming an <code>exp</code> claim is set to the value you expected, checking which algorithm a third-party API issues tokens with, or inspecting what claims your own auth service is actually putting into a token during development — all without needing the signing key at hand.</p>
     </div>
   </main>
 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeScript error: Cannot find module or its type declarations — fix it | DevFixTools</title>
+<meta name="description" content="Fix TypeScript's 'Cannot find module or its corresponding type declarations' error (TS2307/TS7016). Covers missing @types packages and untyped modules.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/typescript/cannot-find-module-type-declarations/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / typescript / cannot find module type declarations</div>
+    <h1 class="section-head">TypeScript: Cannot find module or its type declarations</h1>
+    <p class="section-sub">The package is installed and your code runs fine in JavaScript — TypeScript specifically can't find <i>type information</i> for it.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Importing a package that installed without any npm error still fails to compile:</p>
+      <pre>src/index.ts:1:19 - error TS7016: Could not find a declaration file for
+module 'left-pad'. '/project/node_modules/left-pad/index.js' implicitly has
+an 'any' type.</pre>
+      <p>or, for a module that genuinely doesn't exist anywhere on disk:</p>
+      <pre>src/index.ts:2:24 - error TS2307: Cannot find module './config' or its
+corresponding type declarations.</pre>
+
+      <h2>Why it happens</h2>
+      <p>TypeScript needs to know the shape of every module you import — what functions it exports, what types they take and return — and that information doesn't come from the JavaScript file itself; it comes from a separate <code>.d.ts</code> declaration file. Some packages ship their own (look for a <code>"types"</code> or <code>"typings"</code> field in their <code>package.json</code>); many popular packages that don't ship their own instead have community-maintained types published separately under the <code>@types</code> scope on npm. TS7016 specifically means: the JS module exists and works fine, but no type declarations were found for it anywhere. TS2307 is broader and also covers a genuinely wrong import path, a file that hasn't been created yet, or a path-mapping alias in <code>tsconfig.json</code> that isn't set up correctly.</p>
+
+      <h2>Fix it — missing types for a real package (TS7016)</h2>
+      <p>Check whether a community types package exists and install it as a dev dependency:</p>
+      <pre>npm install --save-dev @types/left-pad</pre>
+      <p>If none exists for that package, you have two honest options: write a minimal ambient declaration yourself in a <code>.d.ts</code> file included in your project (e.g. <code>declare module 'left-pad';</code> to silence the error while treating everything from it as <code>any</code>), or set <code>"noImplicitAny": false</code> in <code>tsconfig.json</code> — the second option is a blunt instrument that weakens type-checking project-wide, so prefer the targeted declaration.</p>
+
+      <h2>Fix it — a local import that can't be found (TS2307)</h2>
+      <p>First rule out a typo or wrong relative path — <code>./config</code> vs <code>./Config</code> matters on case-sensitive filesystems (Linux, and CI, even if your Mac or Windows machine is case-insensitive and hides the bug locally). If you're using path aliases (<code>@/utils</code> style imports), confirm both halves of the mapping exist and agree: the <code>paths</code> entry in <code>tsconfig.json</code>, and — separately — your bundler's own alias configuration (Webpack, Vite, Jest each need telling about the same alias independently; TypeScript's <code>paths</code> only affects type-checking, not how your bundler actually resolves the import at build time).</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

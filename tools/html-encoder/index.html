@@ -5,8 +5,8 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTML Encoder (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Encode and decode HTML entities. Coming soon to DevFixTools — a free, client-side developer tools site.">
+<title>HTML Encoder / Decoder — Escape HTML Entities (Free) | DevFixTools</title>
+<meta name="description" content="Encode text to safe HTML entities, or decode HTML entities back to plain text. Runs entirely in your browser using a safe, script-free decode method.">
 <link rel="canonical" href="https://www.skservices.co.nz/tools/html-encoder/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +20,42 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / html encoder</div>
-    <h1 class="section-head">HTML Encoder</h1>
-    <p class="section-sub">Encode and decode HTML entities.</p>
+    <div class="tool-head">
+      <h1 class="section-head">HTML Encoder / Decoder</h1>
+      <p class="section-sub">Turn <code>&lt; &gt; & " '</code> into safe HTML entities, or turn entities back into plain text.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today.
+    <div class="tool-panel">
+      <div class="panel-label">Text</div>
+      <textarea id="htmlInput" placeholder="Paste text or HTML…" spellcheck="false"></textarea>
+    </div>
+
+    <div class="field-row">
+      <label><input type="checkbox" id="htmlNonAscii"> also encode non-ASCII characters (é, →, emoji…) as numeric entities</label>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn primary" id="btnEncode">Encode</button>
+      <button class="btn" id="btnDecode">Decode</button>
+      <button class="btn" id="btnSwap">Swap ⇅</button>
+      <button class="btn" id="btnCopy">Copy output</button>
+      <button class="btn" id="btnClear">Clear</button>
+    </div>
+
+    <div class="tool-error" id="htmlError"></div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Output</div>
+      <pre class="tool-output" id="htmlOutput"></pre>
+    </div>
+
+    <div class="prose">
+      <h2>When you need to encode HTML</h2>
+      <p>Any time user-supplied text ends up inside an HTML page — a comment, a display name, a search term echoed back on a results page — the five characters <code>&amp; &lt; &gt; " '</code> need to become entities (<code>&amp;amp;</code>, <code>&amp;lt;</code>, <code>&amp;gt;</code>, <code>&amp;quot;</code>, <code>&amp;#39;</code>) before they're inserted. Skip that step and a comment containing <code>&lt;script&gt;</code> or an <code>onerror=</code> attribute isn't just displayed wrong — it executes, which is the root cause of stored cross-site scripting (XSS) vulnerabilities. This tool does the encoding side of that safely; it does not replace a proper templating engine's auto-escaping in production code, but it's useful for manually preparing a snippet, checking what a string will render as, or reverse-engineering a page that already has encoded content in its source.</p>
+      <h2>Why the decoder uses a hidden textarea instead of parsing HTML</h2>
+      <p>A tempting shortcut for decoding entities is to set a string as an element's <code>innerHTML</code> and read back its <code>textContent</code> — but that means asking the browser to parse arbitrary HTML, and if the input contains a real tag with an event handler, some code paths can still trigger it. This tool instead assigns the input to a <code>&lt;textarea&gt;</code> element's <code>innerHTML</code>: a textarea's content is always treated as plain text data by the HTML parser, never as markup, so entities inside it resolve correctly (both named entities like <code>&amp;amp;</code> and numeric ones like <code>&amp;#233;</code>) while any literal <code>&lt;tag&gt;</code> in the input stays inert text rather than becoming a live element. It's the same trick browsers themselves rely on internally, and it never touches the visible page or the network.</p>
+      <h2>Encoding non-ASCII text</h2>
+      <p>Modern pages served as UTF-8 don't strictly need accented letters or emoji encoded as entities — the browser renders them directly. The checkbox above exists for the cases where you don't control the destination's encoding: pasting into an older CMS, an email template, or a system that mangles anything outside plain ASCII. With it ticked, every character above code point 127 is converted to its <code>&amp;#<em>NNN</em>;</code> numeric form, which is guaranteed to survive regardless of the receiving system's character set.</p>
     </div>
   </main>
 
@@ -43,5 +74,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/html-encoder.js"></script>
 </body>
 </html>

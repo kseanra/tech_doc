@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git error: You are in 'detached HEAD' state — fix it | DevFixTools</title>
+<meta name="description" content="Understand Git's 'detached HEAD' warning, why commits made there can get lost, and how to save your work to a real branch.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/git/detached-head/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / <a href="/errors/git/">git</a> / detached head</div>
+    <h1 class="section-head">Git: you are in 'detached HEAD' state</h1>
+    <p class="section-sub">Not an error exactly — a warning that you're not on a branch, and that any commits you make now can be hard to find again.</p>
+
+    <div class="prose">
+      <h2>The message</h2>
+      <p>After checking out a specific commit, tag, or a remote branch by its full ref, Git prints something like:</p>
+      <pre>Note: switching to '4f2a9c1'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.</pre>
+
+      <h2>Why it happens</h2>
+      <p>Normally, <code>HEAD</code> is a pointer to a branch (like <code>main</code>), and a branch is itself a pointer to a commit — when you commit, the branch pointer moves forward automatically. Running <code>git checkout &lt;commit-hash&gt;</code>, <code>git checkout &lt;tag&gt;</code>, or <code>git checkout origin/main</code> points <code>HEAD</code> directly at a commit instead, with no branch in between. You can look around, run code, even build the project exactly as it was at that point in history — that part is completely safe. The catch is what happens if you commit while detached: the new commit exists, but no branch points to it, so the moment you check out a branch again, that commit becomes unreachable through normal Git commands and is eventually garbage-collected.</p>
+
+      <h2>Fix it — before switching away</h2>
+      <p>If you've made commits you want to keep while detached, create a real branch pointing at your current position <i>before</i> you check out anything else:</p>
+      <pre>git switch -c my-new-branch</pre>
+      <p>(or the older equivalent, <code>git checkout -b my-new-branch</code>). That instantly turns your detached commits into a normal branch tip, safe from garbage collection, and you can merge or push it like any other branch.</p>
+
+      <h2>If you already switched away and think you lost commits</h2>
+      <p>Nothing is deleted immediately — Git keeps unreferenced commits for a while (30 days by default) before actual garbage collection. Recover a lost commit's hash with:</p>
+      <pre>git reflog</pre>
+      <p>This lists every place <code>HEAD</code> has pointed recently, including the detached commit you were on. Find the entry, then create a branch from that hash the same way: <code>git switch -c recovered-work &lt;hash-from-reflog&gt;</code>.</p>
+      <p>If you only meant to look at old code and made no commits, there's nothing to recover — just switch back to a branch normally with <code>git switch main</code> and the warning goes away.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

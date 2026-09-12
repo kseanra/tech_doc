@@ -5,9 +5,9 @@
      crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XML Formatter (Coming Soon) | DevFixTools</title>
-<meta name="description" content="Format and validate XML documents. Coming soon to DevFixTools — a free, client-side developer tools site.">
-<link rel="canonical" href="https://devfixtools.com/tools/xml-formatter/">
+<title>XML Formatter &amp; Validator (Free, Online) | DevFixTools</title>
+<meta name="description" content="Format, minify and validate XML documents online. Get a plain-language error if the document isn't well-formed. Runs entirely in your browser.">
+<link rel="canonical" href="https://www.skservices.co.nz/tools/xml-formatter/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,11 +20,38 @@
 <div class="shell no-sidebar">
   <main class="wide">
     <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/tools/">tools</a> / xml formatter</div>
-    <h1 class="section-head">XML Formatter</h1>
-    <p class="section-sub">Format and validate XML documents.</p>
+    <div class="tool-head">
+      <h1 class="section-head">XML Formatter &amp; Validator</h1>
+      <p class="section-sub">Paste an XML document, check that it's well-formed, and pretty-print or minify it.</p>
+    </div>
 
-    <div class="info-callout">
-      This tool is <b>coming soon</b>. In the meantime, check out the <a href="/tools/">full tools directory</a> for what's live today.
+    <div class="tool-panel">
+      <div class="panel-label">Input</div>
+      <textarea id="xmlInput" placeholder="&lt;root&gt;&lt;item id=&quot;1&quot;&gt;first&lt;/item&gt;&lt;item id=&quot;2&quot;&gt;second&lt;/item&gt;&lt;/root&gt;" spellcheck="false"></textarea>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn primary" id="btnFormat">Format</button>
+      <button class="btn" id="btnMinify">Minify</button>
+      <button class="btn" id="btnCopy">Copy output</button>
+      <button class="btn" id="btnClear">Clear</button>
+    </div>
+
+    <div class="tool-error" id="xmlError"></div>
+    <div class="tool-ok" id="xmlOk"></div>
+
+    <div class="tool-panel">
+      <div class="panel-label">Output</div>
+      <pre class="tool-output" id="xmlOutput"></pre>
+    </div>
+
+    <div class="prose">
+      <h2>What "well-formed" means, and why it's checked first</h2>
+      <p>XML has one hard requirement that HTML famously doesn't: every element you open has to be closed, tags can't cross each other (<code>&lt;a&gt;&lt;b&gt;&lt;/a&gt;&lt;/b&gt;</code> is invalid), attribute values must be quoted, and there has to be exactly one root element wrapping everything else. A document that breaks any of these rules is not "loosely formatted XML" — it isn't XML at all, and any real XML parser (in your language's standard library, in a build tool, in whatever system is meant to consume the file) will reject it outright. This tool uses the browser's own built-in <code>DOMParser</code> to attempt a real parse before doing anything else, so if the input is broken, you get a specific parser error — typically naming the line and the mismatched or unclosed tag — instead of a formatter silently producing nonsense from invalid input.</p>
+      <h2>How the pretty-printer works</h2>
+      <p>Once the document parses cleanly, formatting is done by inserting a line break at every tag boundary and then indenting each line two spaces deeper each time a new element opens, and two spaces shallower each time one closes — the same visual convention used by <code>xmllint --format</code> and most IDE "reformat XML" commands. Self-closing tags (<code>&lt;br/&gt;</code>) and elements that open and close on the same line (<code>&lt;name&gt;Alex&lt;/name&gt;</code>) don't affect the indent level, so the structure that comes out mirrors the document's actual nesting rather than an arbitrary re-flow. <b>Minify</b> does the opposite: it strips all whitespace between tags, which is useful when you need to paste XML into a context — a config value, a single-line log field — that can't contain literal newlines.</p>
+      <h2>What this tool doesn't do</h2>
+      <p>It checks well-formedness, not validity against a schema — a document can be perfectly well-formed XML while still violating an XSD or DTD that defines which elements and attributes are allowed where. It also doesn't resolve external entities or DOCTYPE declarations that reference outside files, both by design: pulling in external resources from a document you paste into a browser tool is exactly the kind of behavior (XXE) that makes XML parsers a security liability when handled carelessly, so this tool sticks to parsing the document exactly as given.</p>
     </div>
   </main>
 
@@ -43,5 +70,6 @@
 
 <script src="/assets/js/site-search.js"></script>
 <script src="/assets/js/chrome.js"></script>
+<script src="/assets/js/tools/xml-formatter.js"></script>
 </body>
 </html>

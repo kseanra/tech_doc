@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go error: imported and not used — fix it | DevFixTools</title>
+<meta name="description" content="Fix Go's '\"fmt\" imported and not used' compile error. Understand why Go treats this as a hard error, and the blank-identifier workaround for side-effect imports.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/go/imported-and-not-used/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / go / imported and not used</div>
+    <h1 class="section-head">Go: imported and not used</h1>
+    <p class="section-sub">Not a warning — Go refuses to compile at all until every imported package is actually referenced somewhere in the file.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Running <code>go build</code> or <code>go run</code> fails before your program ever executes:</p>
+      <pre>./main.go:5:2: "fmt" imported and not used</pre>
+
+      <h2>Why it happens</h2>
+      <p>Most languages treat an unused import as a linter warning at worst. Go treats it as a compile error, full stop — the compiler refuses to produce a binary at all. This is a deliberate language design choice, not an oversight: the Go authors wanted to eliminate the slow accumulation of dead imports that happens in large codebases in other languages, where nobody ever gets around to cleaning up an import nobody removed after refactoring. The tradeoff is that a genuinely temporary situation — commenting out the one line that used a package while debugging — breaks the build immediately, which trips up nearly everyone coming from another language for the first time.</p>
+
+      <h2>Fix it</h2>
+      <p>The direct fix is almost always right: either use the package somewhere in the file, or remove the import entirely. If you commented out the only line using <code>fmt</code> while debugging, either comment out the import too, or (more common in practice) use <code>go build</code>'s companion tool to do it for you:</p>
+      <pre>goimports -w main.go</pre>
+      <p><code>goimports</code> is a superset of <code>gofmt</code> that also adds missing imports and removes unused ones automatically — most Go editor integrations run it on save specifically so this error rarely surfaces during normal editing, only when running from the command line directly on a file that hasn't been through it.</p>
+
+      <h2>When you need the import for its side effects only</h2>
+      <p>Some packages are imported purely for their <code>init()</code> function's side effects — registering a database driver, for instance — with no exported identifier from the package ever referenced directly in your code. For this specific case, Go provides the blank identifier as an explicit "yes, I mean to import this and never reference it":</p>
+      <pre>import _ "github.com/lib/pq"</pre>
+      <p>The underscore tells both the compiler and the next person reading the file that the omission is intentional, rather than a genuinely stale import that should be removed.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

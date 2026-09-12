@@ -5,6 +5,168 @@ Tool or Guide" task. Newest entries first. Never re-implement anything listed
 as `SHIPPED`; when starting a run, prefer the highest-priority `PLANNED` item
 over searching for a brand-new idea.
 
+## 2026-09-12 — Deepened all remaining thin tool pages; 6 more error categories (24 total in /errors/)
+**Status:** SHIPPED
+
+Two pieces of work in this entry:
+
+**Tool content depth.** The 8 tool pages that predated this remediation
+(JSON Formatter, both Base64 tools, both URL tools, JWT Decoder, UUID
+Generator, Timestamp Converter) each had only a short one- or two-sentence
+prose section. All 8 now carry the same 400+ word treatment as the 5 tools
+built out earlier this week — real explanations of the underlying format,
+common failure modes, and worked examples, not just a description of the
+buttons. Regex Tester already had adequate prose from when it shipped and
+was left as-is. No JS or markup outside each `.prose` block changed.
+
+**Errors section**, continuing to prioritise this over new tools per the
+audit: 6 more full pages, all new categories:
+
+- `/errors/kubernetes/crashloopbackoff/` — a status, not a cause; finding
+  the real error via `kubectl logs --previous` and `describe pod`.
+- `/errors/aws/s3-access-denied/` — the four overlapping permission layers
+  (IAM, bucket policy, Block Public Access, ACLs) that can each
+  independently deny a request, and the cross-account double-consent trap.
+- `/errors/mongodb/econnrefused/` — local mongod-not-running vs. the
+  Docker service-name networking case (same underlying mechanism as the
+  Redis page).
+- `/errors/go/imported-and-not-used/` — why Go makes this a hard compile
+  error by design, `goimports`, and the blank-identifier side-effect-import
+  pattern.
+- `/errors/react/too-many-re-renders/` — the classic
+  `onClick={setState(x)}` mistake vs. the correct `onClick={() => setState(x)}`,
+  plus the subtler unconditional-setter-in-body version.
+- `/errors/webpack/module-not-found/` — four causes (typo, case-sensitivity
+  on CI, missing extension config, alias defined on only one side).
+
+Errors section is now 24 pages (18 error-solution pages across 15
+categories + 2 category indexes + this errors/index.html itself not
+counted separately), comfortably inside the 20–30 target range from the
+original audit, up from 18 at the start of this entry.
+
+Files touched: new `errors/kubernetes/crashloopbackoff/index.html`,
+`errors/aws/s3-access-denied/index.html`,
+`errors/mongodb/econnrefused/index.html`,
+`errors/go/imported-and-not-used/index.html`,
+`errors/react/too-many-re-renders/index.html`,
+`errors/webpack/module-not-found/index.html`; edited `errors/index.html`,
+`sitemap.xml`, `assets/js/site-search.js`, and the `.prose` section of
+`tools/json-formatter/index.html`, `tools/base64-encoder/index.html`,
+`tools/base64-decoder/index.html`, `tools/url-encoder/index.html`,
+`tools/url-decoder/index.html`, `tools/jwt-decoder/index.html`,
+`tools/uuid-generator/index.html`, `tools/timestamp-converter/index.html`.
+
+## 2026-09-12 — 8 more error pages, 2 new category index pages (18 total in /errors/)
+**Status:** SHIPPED
+
+Continued growing the errors section (top priority per the AdSense readiness
+audit, prioritised over new tools) with 8 new full pages at Git/Docker depth:
+
+- `/errors/git/merge-conflict/` — reading conflict markers, resolving and
+  committing, or aborting with `git merge --abort`.
+- `/errors/git/detached-head/` — what detached HEAD means, why commits made
+  there can become unreachable, recovering via `git reflog` if you already
+  switched away.
+- `/errors/docker/cannot-connect-to-daemon/` — the three real causes (daemon
+  not running, socket permissions, stray `DOCKER_HOST`), covered per OS.
+- `/errors/npm/eresolve-dependency-conflict/` (new category) — peer
+  dependency conflicts since npm 7, the real fix vs. `--legacy-peer-deps`
+  vs. why `--force` is the wrong shortcut here.
+- `/errors/postgresql/password-authentication-failed/` (new category) —
+  the `pg_hba.conf` peer-vs-password auth trap, plus the Docker
+  first-startup-only password variant.
+- `/errors/powershell/running-scripts-disabled/` (new category) —
+  execution policy levels, `Unblock-File`, and the one-shot `-ExecutionPolicy
+  Bypass` alternative to changing the system default.
+- `/errors/java/could-not-find-or-load-main-class/` (new category) —
+  classpath vs. package-declaration-vs-folder mismatches, not a missing file.
+- `/errors/typescript/cannot-find-module-type-declarations/` (new category)
+  — TS7016 (missing `@types`) vs. TS2307 (bad path/alias), and why a
+  bundler alias needs its own separate config from `tsconfig.json`'s `paths`.
+
+Since Git and Docker now have more than one page each, added real category
+index pages — `/errors/git/` and `/errors/docker/` — following the same
+pattern guide categories already use, and pointed their breadcrumb "git" /
+"docker" segments at these new pages instead of leaving them as plain text
+(the earlier fix only removed the incorrect `/errors/` link; this replaces
+it with a correct one now that a real target exists). Other single-page
+categories (MySQL, .NET, Redis, Node.js, Python, Nginx, and the four new
+ones) keep plain-text breadcrumb segments, matching the existing convention
+for categories with only one page.
+
+Errors section is now 18 pages (8 error solutions + 2 category indexes,
+up from 8 total at the start of this entry), still short of the 20–30
+target but a large step closer. Updated `errors/index.html`'s grid
+(12 category cards now), `sitemap.xml`, and `SITE_INDEX` in
+`site-search.js` accordingly.
+
+Files touched: new `errors/git/merge-conflict/index.html`,
+`errors/git/detached-head/index.html`,
+`errors/docker/cannot-connect-to-daemon/index.html`,
+`errors/npm/eresolve-dependency-conflict/index.html`,
+`errors/postgresql/password-authentication-failed/index.html`,
+`errors/powershell/running-scripts-disabled/index.html`,
+`errors/java/could-not-find-or-load-main-class/index.html`,
+`errors/typescript/cannot-find-module-type-declarations/index.html`,
+`errors/git/index.html`, `errors/docker/index.html`; edited
+`errors/index.html`, `errors/git/fatal-not-a-git-repository/index.html`
+(breadcrumb), `errors/docker/container-name-in-use/index.html`
+(breadcrumb), `sitemap.xml`, `assets/js/site-search.js`.
+
+## 2026-09-12 — Built out all 5 remaining stub tools; fixed a canonical regression
+**Status:** SHIPPED
+
+The five tools that had sat as "coming soon" placeholders since before this
+remediation started — a dead end the AdSense readiness audit called out by
+name, since every one of them linked back to `/tools/` — are now real,
+working, client-side tools:
+
+- `/tools/regex-escape/` — escapes the JS regex metacharacter set (plus an
+  optional `/` for regex-literal use), with a worked example of why an
+  unescaped `(` silently breaks a literal match.
+- `/tools/html-encoder/` — encodes the five HTML-unsafe characters (with an
+  optional non-ASCII → numeric-entity mode), and decodes using a detached
+  `<textarea>` element rather than parsing into live HTML, so a `<script>`
+  in the input is never at risk of executing.
+- `/tools/sql-formatter/` — heuristic (not a real parser) clause-based
+  formatter: breaks a query onto one line per major clause, indents
+  `AND`/`OR`, expands long comma-separated column lists. Prose is upfront
+  about what a heuristic formatter can't do (quoted keywords, deep subquery
+  nesting).
+- `/tools/xml-formatter/` — validates well-formedness with the browser's own
+  `DOMParser` first (real parser errors, not guesses), then pretty-prints or
+  minifies. Explicitly does not resolve DOCTYPEs/external entities (XXE
+  surface) and doesn't claim schema validation.
+- `/tools/unix-timestamp/` — deliberately scoped narrower than the existing
+  Timestamp Converter: a live-updating "right now" clock (seconds / ms /
+  ISO, with Freeze), explaining the seconds-vs-milliseconds mixup as the
+  actual reason this page exists alongside the full converter, so the two
+  tools don't read as near-duplicates.
+
+Each page follows the `json-formatter`/`base64-encoder` house pattern
+(`.tool-panel` / `.tool-actions` / `.tool-error` / `.tool-ok`, copy-to-
+clipboard with "copied" feedback) and carries 400+ words of real supporting
+content — not just a description of the buttons, but why the underlying
+problem exists. Flipped all five cards in `tools/index.html` from
+`soon`/disabled to `live`; no `sitemap.xml` or `site-search.js` changes were
+needed since both already listed these five URLs from when the placeholder
+pages were created.
+
+Also found and fixed a regression while working in this area:
+`tools/xml-formatter/index.html`'s canonical tag had reverted to the old
+`https://devfixtools.com/tools/xml-formatter/` domain — this file was not
+part of the original canonical-fix batch, so something touched it between
+runs. Fixed back to `https://www.skservices.co.nz/tools/xml-formatter/`.
+Given this is the second file (after an earlier `CONTENT_LOG.md` reset)
+found reverted outside of an active editing session, it's worth spot-checking
+previously-"done" files periodically rather than assuming a fix stays fixed.
+
+Files touched: new `assets/js/tools/regex-escape.js`, `html-encoder.js`,
+`sql-formatter.js`, `xml-formatter.js`, `unix-timestamp.js`; rewrote
+`tools/regex-escape/index.html`, `tools/html-encoder/index.html`,
+`tools/sql-formatter/index.html`, `tools/xml-formatter/index.html` (also
+canonical fix), `tools/unix-timestamp/index.html`; edited `tools/index.html`.
+
 ## 2026-09-12 — Node.js, Python, Nginx error pages
 **Status:** SHIPPED
 
@@ -136,16 +298,7 @@ Files touched: `tools/regex-tester/index.html` (rewritten), new
 
 ## Backlog — PLANNED
 
-These already have a placeholder "coming soon" page and a `SITE_INDEX` /
-`sitemap.xml` entry from earlier work. Pick the highest-priority one next
-rather than searching for a brand-new idea:
-
-- **Regex Escape** (`/tools/regex-escape/`) — escape special characters so a
-  literal string is safe to drop inside a regex.
-- **HTML Encoder** (`/tools/html-encoder/`) — encode/decode HTML entities.
-- **SQL Formatter** (`/tools/sql-formatter/`) — pretty-print a SQL query.
-- **XML Formatter** (`/tools/xml-formatter/`) — format and validate XML
-  documents.
-- **Unix Timestamp** (`/tools/unix-timestamp/`) — a quick "current
-  timestamp" lookup, distinct from the existing bidirectional Timestamp
-  Converter.
+No placeholder "coming soon" tool or guide pages remain. Next priority per
+the AdSense readiness audit is continuing the errors section buildout
+(currently 8 pages, target 20–30) over new tools — see the audit doc for the
+full remaining task list.

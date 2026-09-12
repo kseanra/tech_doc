@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git error: Automatic merge failed; fix conflicts — fix it | DevFixTools</title>
+<meta name="description" content="Fix Git's 'Automatic merge failed; fix conflicts and then commit the result' error. Read the conflict markers, resolve them, and finish or abort the merge.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/git/merge-conflict/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / <a href="/errors/git/">git</a> / merge conflict</div>
+    <h1 class="section-head">Git: Automatic merge failed; fix conflicts</h1>
+    <p class="section-sub">What a merge conflict actually is, how to read the markers Git leaves in your files, and how to finish (or bail out of) the merge.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>You ran <code>git merge</code> (or <code>git pull</code>, which is a fetch plus a merge) and got:</p>
+      <pre>Auto-merging src/app.js
+CONFLICT (content): Merge conflict in src/app.js
+Automatic merge failed; fix conflicts and then commit the result.</pre>
+
+      <h2>Why it happens</h2>
+      <p>Git merges automatically whenever it can figure out how to combine two branches' changes on its own — different lines, different files, or changes far enough apart in the same file. A conflict means both branches changed the <i>same lines</i> of the <i>same file</i> in ways Git can't reconcile by itself, so it stops and asks you to decide. This is expected and not a sign anything is broken; it happens constantly on any repo with more than one contributor.</p>
+      <p>Git marks every conflicted spot directly in the file:</p>
+      <pre>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+const timeout = 3000;
+=======
+const timeout = 5000;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/longer-timeout</pre>
+      <p>Everything between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and the <code>=======</code> divider is what's currently on your branch; everything between the divider and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch-name</code> is what's coming in from the branch you're merging.</p>
+
+      <h2>Fix it</h2>
+      <p>See which files have conflicts:</p>
+      <pre>git status</pre>
+      <p>Open each file listed under "Unmerged paths," decide what the final code should look like, and delete the marker lines themselves (<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>) — Git never removes these for you, and leaving one in is a very easy mistake to ship. Once a file is resolved the way you want it, mark it resolved and continue:</p>
+      <pre>git add src/app.js
+git commit</pre>
+      <p>Git pre-fills a merge commit message for you; you usually don't need to change it. If you have several conflicted files, resolve and <code>git add</code> each one before running the final <code>git commit</code>.</p>
+
+      <h2>Changed your mind? Abort it</h2>
+      <p>If the conflicts are extensive or you realize this merge shouldn't be happening yet, back out completely and return to exactly where you were before running <code>git merge</code>:</p>
+      <pre>git merge --abort</pre>
+      <p>This only works before you've committed the merge — once you run <code>git commit</code> to finish it, use <code>git reset --hard ORIG_HEAD</code> instead if you need to undo it (and only if you haven't pushed yet; rewriting history after a push needs a force-push and a heads-up to anyone else using that branch).</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker error: Cannot connect to the Docker daemon — fix it | DevFixTools</title>
+<meta name="description" content="Fix Docker's 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?' error on macOS, Linux, and Windows.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/docker/cannot-connect-to-daemon/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / <a href="/errors/docker/">docker</a> / cannot connect to daemon</div>
+    <h1 class="section-head">Docker: cannot connect to the Docker daemon</h1>
+    <p class="section-sub">What "Is the docker daemon running?" actually means, and the three real causes behind it.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Any <code>docker</code> command — even <code>docker ps</code> — fails with:</p>
+      <pre>Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the
+docker daemon running?</pre>
+      <p>On Windows it usually names a named pipe instead of a unix socket, but the meaning is identical.</p>
+
+      <h2>Why it happens</h2>
+      <p>The <code>docker</code> command you type is only a client — it doesn't run containers itself. It talks to a background service, the Docker daemon (<code>dockerd</code>), over a local socket, and every single Docker command needs that connection to succeed. This error means the client couldn't reach the daemon at all, for one of three reasons:</p>
+      <ul>
+        <li><b>The daemon isn't running.</b> On macOS and Windows that means Docker Desktop itself isn't started; on Linux it means the <code>docker</code> service isn't active.</li>
+        <li><b>Permission denied on the socket</b> (Linux only) — the socket file exists and the daemon is running, but your user isn't in the group allowed to talk to it. This shows up as a slightly different message mentioning "permission denied," but leads here for the same underlying reason.</li>
+        <li><b>Wrong target</b> — a <code>DOCKER_HOST</code> environment variable is pointing the client at a socket, host, or context that isn't valid (common right after switching between Docker Desktop and a remote/VM-based setup).</li>
+      </ul>
+
+      <h2>Fix it</h2>
+      <p>On macOS or Windows, first confirm Docker Desktop is actually open and fully started (its icon typically shows a status indicator while starting up) — most instances of this error are just the daemon not being up yet.</p>
+      <p>On Linux, check whether the service is running and start it if not:</p>
+      <pre>sudo systemctl status docker
+sudo systemctl start docker</pre>
+      <p>If the daemon is running but you're still blocked, it's almost always the permission case — add your user to the <code>docker</code> group so you don't need <code>sudo</code> for every command, then start a new shell session (group membership only applies to new logins):</p>
+      <pre>sudo usermod -aG docker $USER
+newgrp docker</pre>
+      <p>If you've used Docker contexts or remote Docker setups before, check which one is currently selected — it's easy to be pointed at a context whose host is no longer reachable:</p>
+      <pre>docker context ls
+docker context use default</pre>
+      <p>Also check for a stray <code>DOCKER_HOST</code> in your shell profile overriding the client's target: <code>echo $DOCKER_HOST</code>. If it's set and shouldn't be, unset it or fix the value.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

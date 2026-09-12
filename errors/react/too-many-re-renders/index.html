@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React error: Too many re-renders — fix it | DevFixTools</title>
+<meta name="description" content="Fix React's 'Too many re-renders. React limits the number of renders to prevent an infinite loop' error. Almost always a state setter called directly in render.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/react/too-many-re-renders/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / react / too many re-renders</div>
+    <h1 class="section-head">React: Too many re-renders</h1>
+    <p class="section-sub">React caught you in an infinite render loop before it could lock up the tab — here's the one-line pattern that almost always causes it.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>A component throws, and the browser console shows:</p>
+      <pre>Error: Too many re-renders. React limits the number of renders to prevent
+an infinite loop.</pre>
+
+      <h2>Why it happens</h2>
+      <p>A render is supposed to be a pure calculation: React calls your component function, it returns some JSX, done. Calling a state setter (from <code>useState</code>) <i>during</i> that render — rather than in response to an event or effect — schedules another render immediately, which calls the component again, which calls the setter again, forever. React detects this pattern and throws deliberately, before the loop actually freezes the tab.</p>
+      <p>By far the most common cause is calling the setter directly in the JSX, instead of passing a function reference for React to call later:</p>
+      <pre>// Bug: setCount() runs on every render, immediately re-triggering another one
+return &lt;button onClick={setCount(count + 1)}&gt;Add&lt;/button&gt;;</pre>
+      <p>Here, <code>setCount(count + 1)</code> executes the instant this line runs during render — not when the button is clicked — because <code>onClick</code> needs to be handed a function, and this code hands it the <i>result of calling</i> <code>setCount</code> instead of the call itself.</p>
+
+      <h2>Fix it</h2>
+      <p>Wrap the call in a function so it only runs on click, not during render:</p>
+      <pre>return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Add&lt;/button&gt;;</pre>
+
+      <h2>The less obvious version: setting state directly in the component body</h2>
+      <p>The same mistake shows up in a subtler form when a setter is called unconditionally in the component body, outside of an event handler or a <code>useEffect</code>:</p>
+      <pre>function Panel({ isOpen }) {
+  const [open, setOpen] = useState(false);
+  setOpen(isOpen); // runs on every render — same infinite loop
+  return &lt;div&gt;{open ? "open" : "closed"}&lt;/div&gt;;
+}</pre>
+      <p>If the intent is to sync local state to a prop whenever it changes, that belongs in a <code>useEffect</code> with the prop in the dependency array (or, often better, no local state at all — just use the prop directly if nothing else needs to modify it):</p>
+      <pre>useEffect(() =&gt; { setOpen(isOpen); }, [isOpen]);</pre>
+      <p>Either way, the diagnostic question is the same: find every place in the component that calls a setter, and confirm each one runs only inside a handler, an effect, or a conditional — never unconditionally in the function's main body where every single render will trigger it again.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

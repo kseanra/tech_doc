@@ -63,7 +63,13 @@
 
     <div class="prose">
       <h2>What is a Unix timestamp?</h2>
-      <p>A Unix (epoch) timestamp counts seconds — or milliseconds, depending on the system — since <code>00:00:00 UTC on 1 January 1970</code>. Databases, logs, and APIs frequently store time this way because it's a single unambiguous number with no timezone to misinterpret; use this page to move between that number and a date you can actually read.</p>
+      <p>A Unix (epoch) timestamp counts seconds — or milliseconds, depending on the system — since <code>00:00:00 UTC on 1 January 1970</code>. Databases, logs, and APIs frequently store time this way because it's a single unambiguous integer with no timezone attached to misinterpret; the timezone only enters the picture when you're ready to <i>display</i> the value to a person, which is exactly what this page's four output rows do.</p>
+      <h3>Why four different outputs for the same moment in time</h3>
+      <p>A timestamp itself has no timezone — <code>1700000000</code> is the same instant everywhere on Earth. <b>Local time</b> renders it in your browser's own timezone (whatever your operating system is set to); <b>UTC</b> renders the same instant with no offset applied, which is what you want when comparing values across a distributed system where "local" would mean something different on every server; <b>ISO 8601</b> is the unambiguous machine-readable string format (<code>2023-11-14T22:13:20.000Z</code>) that most APIs expect when you need to send a date as text; and <b>Relative</b> ("3 months ago", "in 2 days") is the human-friendly framing you'd put in a UI, computed against the current time.</p>
+      <h3>Worked example</h3>
+      <p>Enter <code>1700000000</code> with unit set to seconds, and the four rows show the same instant four ways — useful for confirming, say, that a timestamp your API returned really does correspond to the date you expect, in the timezone your users will actually see it in.</p>
+      <h3>Seconds vs. milliseconds — check this first</h3>
+      <p>The single most common reason this tool shows a wildly wrong date (usually 1970 itself, or several decades in the future) is picking the wrong unit. JavaScript's own <code>Date.now()</code> returns milliseconds, while most server languages, database columns, and API conventions use seconds — mixing the two up by a factor of 1000 is an easy and extremely common bug. If your result year looks obviously wrong, flip the unit dropdown and try again before assuming the timestamp itself is bad. If what you actually need is just the current timestamp rather than converting a specific date, the narrower <a href="/tools/unix-timestamp/">Unix Timestamp</a> tool is built specifically for that, with a live-updating clock instead of a conversion form.</p>
     </div>
   </main>
 

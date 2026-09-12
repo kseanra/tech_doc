@@ -47,7 +47,13 @@
 
     <div class="prose">
       <h2>About Base64 encoding</h2>
-      <p>Base64 turns arbitrary bytes into a string using only 64 printable ASCII characters (<code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>+</code>, <code>/</code>, with <code>=</code> as padding). It's commonly used to embed binary-ish data — images, tokens, credentials — inside text formats like JSON, URLs, or HTTP headers that can't safely carry raw bytes.</p>
+      <p>Base64 turns arbitrary bytes into a string using only 64 printable ASCII characters (<code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>+</code>, <code>/</code>, with <code>=</code> as padding). It's commonly used to embed binary-ish data — images, tokens, credentials — inside text formats like JSON, URLs, or HTTP headers that can't safely carry raw bytes. Every 3 bytes of input become 4 Base64 characters, which is why encoded output is consistently about a third larger than the original — there's no compression happening, only a change of alphabet.</p>
+      <h3>Why UTF-8 handling matters</h3>
+      <p>A bare call to the browser's built-in <code>btoa()</code> function throws on any character outside the Latin-1 range — accented letters, emoji, CJK text all break it, because <code>btoa</code> expects a "binary string" where every character is a single byte. This tool encodes the UTF-8 byte sequence instead, so <code>café ☕</code> round-trips correctly instead of throwing <code>InvalidCharacterError</code> partway through.</p>
+      <h3>Worked example</h3>
+      <p>Encoding the text <code>hello</code> produces <code>aGVsbG8=</code> — five bytes of input becoming eight Base64 characters plus one padding character, since 5 isn't evenly divisible by 3. Try encoding a single character at a time and you'll see the padding shift: one input byte needs two <code>=</code>, two input bytes need one, and three or more input bytes need none until the next group starts.</p>
+      <h3>Base64 vs. Base64url</h3>
+      <p>Standard Base64's <code>+</code> and <code>/</code> characters both have special meaning inside a URL, so a Base64 string containing them isn't safe to drop directly into a query parameter without also URL-encoding it — a common source of mangled tokens. A variant called Base64url (used by JWTs, among other things) swaps in <code>-</code> and <code>_</code> and usually drops the <code>=</code> padding entirely so the result is URL-safe on its own; this tool produces standard Base64, so if the output is headed into a URL, either run it through the <a href="/tools/url-encoder/">URL Encoder</a> first or use a Base64url-aware library at the point where it's actually needed.</p>
       <p>Need to go the other way? Use the <a href="/tools/base64-decoder/">Base64 Decoder</a>, or hit <b>Swap</b> above to flip the input/output in place.</p>
     </div>
   </main>

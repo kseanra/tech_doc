@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostgreSQL error: password authentication failed — fix it | DevFixTools</title>
+<meta name="description" content="Fix PostgreSQL's 'FATAL: password authentication failed for user' error. Understand pg_hba.conf auth methods and the peer-vs-password trap.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/postgresql/password-authentication-failed/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / postgresql / password authentication failed</div>
+    <h1 class="section-head">PostgreSQL: password authentication failed for user</h1>
+    <p class="section-sub">Why this shows up even when you're sure the password is right, and how PostgreSQL actually decides which auth method to use.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p>Connecting with <code>psql</code>, a client library, or an app fails with:</p>
+      <pre>psql: error: connection to server at "localhost", port 5432 failed:
+FATAL:  password authentication failed for user "postgres"</pre>
+
+      <h2>Why it happens</h2>
+      <p>Unlike some databases, PostgreSQL doesn't use one universal auth method — it decides how to authenticate a connection attempt by matching it (by user, database, and connection source) against rules in a file called <code>pg_hba.conf</code>, read top to bottom, first match wins. The two methods people mix up most:</p>
+      <ul>
+        <li><b><code>peer</code></b> — trusts the operating system's own user account instead of a password, but only works for local socket connections where your OS username matches the Postgres role name.</li>
+        <li><b><code>md5</code> / <code>scram-sha-256</code></b> — an actual password check, used for TCP connections (<code>host</code> entries, including <code>127.0.0.1</code> and remote hosts).</li>
+      </ul>
+      <p>The password-authentication-failed error specifically means a rule requiring a password matched your connection, and the password you supplied didn't match what's stored — which can mean the password really is wrong, but just as often means the password was never set at all, or you're hitting a different auth rule than you expect (e.g. connecting over TCP to <code>127.0.0.1</code> when you meant to use the local peer-authenticated socket).</p>
+
+      <h2>Fix it</h2>
+      <p>Confirm which rule is actually matching your connection by reading <code>pg_hba.conf</code> (location varies by OS/install — <code>SHOW hba_file;</code> from an already-connected session will tell you exactly where):</p>
+      <pre>sudo cat /etc/postgresql/*/main/pg_hba.conf | grep -v '^#'</pre>
+      <p>If the role's password was never actually set (common right after a fresh install, where some distros create the <code>postgres</code> role with no password at all), set one from a session authenticated another way — typically <code>peer</code>, run as the matching OS user:</p>
+      <pre>sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'newpassword';"</pre>
+      <p>If you specifically want to connect locally without typing a password every time during development (never do this in production), you can change the relevant <code>pg_hba.conf</code> line's method to <code>trust</code> and reload:</p>
+      <pre>sudo systemctl reload postgresql</pre>
+
+      <h2>The Docker version of this error</h2>
+      <p>Running Postgres in a container, the equivalent trap is starting the container once without <code>POSTGRES_PASSWORD</code> set — the password is only initialized on the <i>first</i> startup with an empty data directory, so setting the environment variable on a container whose volume already has data does nothing. If you set the password after the fact, either connect and run <code>ALTER USER</code> as above, or wipe the data volume and let it reinitialize with the variable set correctly.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>

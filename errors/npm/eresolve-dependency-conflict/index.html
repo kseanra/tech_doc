@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3830116872007511"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>npm error: ERESOLVE could not resolve — fix it | DevFixTools</title>
+<meta name="description" content="Fix npm's 'ERESOLVE unable to resolve dependency tree' error. Understand peer dependency conflicts and when --legacy-peer-deps is (and isn't) the right fix.">
+<link rel="canonical" href="https://www.skservices.co.nz/errors/npm/eresolve-dependency-conflict/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0E14'/%3E%3Ctext x='50' y='66' font-size='46' font-family='monospace' font-weight='700' fill='%23F2A65A' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="shell no-sidebar">
+  <main class="wide">
+    <div class="eyebrow-crumb"><a href="/">home</a> / <a href="/errors/">errors</a> / npm / eresolve dependency conflict</div>
+    <h1 class="section-head">npm: ERESOLVE could not resolve</h1>
+    <p class="section-sub">Why npm suddenly refuses to install a package it used to install fine, and how to fix the actual conflict instead of just forcing past it.</p>
+
+    <div class="prose">
+      <h2>The error</h2>
+      <p><code>npm install</code> fails partway through with something like:</p>
+      <pre>npm ERR! code ERESOLVE
+npm ERR! ERESOLVE unable to resolve dependency tree
+npm ERR!
+npm ERR! While resolving: my-app@1.0.0
+npm ERR! Found: react@16.14.0
+npm ERR! node_modules/react
+npm ERR!   react@"^16.14.0" from the root project
+npm ERR!
+npm ERR! Could not resolve dependency:
+npm ERR! peer react@"^18.0.0" from some-library@3.2.0</pre>
+
+      <h2>Why it happens</h2>
+      <p>A "peer dependency" is a package that says "I need <i>you</i>, the app installing me, to also have this other package at this version" — <code>some-library</code> above is saying it needs React 18 to work correctly, but your project has React 16 installed. Up through npm 6, npm installed packages anyway and just printed a warning if peer dependencies didn't match, leaving it to you to notice. Starting with npm 7, npm treats an unmet peer dependency as a hard error by default and refuses to install until the conflict is resolved — which is more correct, but breaks a lot of installs that used to "work" while silently running mismatched versions underneath.</p>
+
+      <h2>Fix it properly</h2>
+      <p>The real fix is to make the versions actually compatible: either upgrade the dependency that's out of date (here, React itself) to a version that satisfies the peer requirement, or find a version of the library requiring the peer dependency that supports your current version. Check what's actually available:</p>
+      <pre>npm info some-library versions
+npm outdated</pre>
+      <p>Upgrading the root dependency is usually the right move if your project can tolerate it — read the target package's changelog for breaking changes first.</p>
+
+      <h2>The shortcut, and when it's actually fine</h2>
+      <p>If you've confirmed the mismatch doesn't matter in practice (common with libraries that declare an overly strict peer range but work fine across nearby versions), you can tell npm to fall back to the old, warning-only behavior:</p>
+      <pre>npm install --legacy-peer-deps</pre>
+      <p>This installs mismatched peers anyway rather than failing. Avoid <code>npm install --force</code> for this specific error — it bypasses the check entirely rather than falling back to a sane resolution strategy, and can silently produce a broken <code>node_modules</code> tree. Whichever way you resolve it, commit the resulting <code>package-lock.json</code> so the same resolution is reproduced for everyone on the team and in CI.</p>
+    </div>
+  </main>
+
+  <aside class="ad-rail">
+    <span class="ad-label">Advertisement</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3830116872007511"
+         data-ad-slot="1171484549"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/assets/js/site-search.js"></script>
+<script src="/assets/js/chrome.js"></script>
+</body>
+</html>
